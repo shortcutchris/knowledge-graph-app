@@ -3,6 +3,8 @@ import * as d3 from 'd3';
 import { ZoomIn, ZoomOut, Move } from 'lucide-react';
 import type { Node, Link, ProposedElement, TooltipState } from '../../types';
 import { Tooltip } from '../common/Tooltip';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface ForceGraphProps {
   nodes: Node[];
@@ -11,6 +13,7 @@ interface ForceGraphProps {
   width: number;
   height: number;
   onNodeClick?: (node: Node | null) => void;
+  selectedNodeId?: string | null;
   enableZoomControls?: boolean;
   graphId?: string;
 }
@@ -22,13 +25,20 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
   width, 
   height, 
   onNodeClick, 
+  selectedNodeId = null,
   enableZoomControls = false, 
   graphId = 'main' 
 }) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
+  const onNodeClickRef = useRef(onNodeClick);
   const [tooltip, setTooltip] = useState<TooltipState>({ visible: false, x: 0, y: 0, content: '' });
+  
+  // Keep onNodeClick ref updated
+  useEffect(() => {
+    onNodeClickRef.current = onNodeClick;
+  }, [onNodeClick]);
 
   // Function to fit graph to viewport
   const fitGraphToViewport = () => {
@@ -57,14 +67,38 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
 
+    // Add a background rect for zoom/pan interactions
+    svg.append("rect")
+      .attr("width", width)
+      .attr("height", height)
+      .attr("fill", "transparent")
+      .attr("class", "zoom-area");
+
     // Create container for zoom
     const g = svg.append("g");
 
     // Add zoom behavior
     const zoom = d3.zoom<SVGSVGElement, unknown>()
       .scaleExtent([0.1, 4])
+      .filter((event) => {
+        // Only allow zoom on wheel events or when dragging on empty space
+        if (event.type === 'wheel') return true;
+        if (event.type === 'mousedown' || event.type === 'touchstart') {
+          // Check if clicking on empty space (not on a node)
+          const target = event.target as Element;
+          return target.tagName === 'svg' || target.classList.contains('zoom-area');
+        }
+        return true;
+      })
       .on("zoom", (event) => {
-        g.attr("transform", event.transform);
+        // Smooth zoom transition
+        if (event.sourceEvent && event.sourceEvent.type === 'wheel') {
+          g.transition()
+            .duration(50)
+            .attr("transform", event.transform);
+        } else {
+          g.attr("transform", event.transform);
+        }
       });
 
     svg.call(zoom);
@@ -72,8 +106,8 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
 
     // Click on background to deselect
     svg.on("click", () => {
-      if (onNodeClick) {
-        onNodeClick(null);
+      if (onNodeClickRef.current) {
+        onNodeClickRef.current(null);
       }
     });
 
@@ -118,11 +152,11 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
         if (d.type === 'is_relevant_for') return 80;
         if (d.type !== 'is_a' && d.type !== 'instance_of' && d.type !== 'is_relevant_for') return 100;
         return 120;
-      }).strength(1))
+      }).strength(0.8))
       .force("charge", d3.forceManyBody().strength(d => {
-        if (d.nodeType === 'question' || d.nodeType === 'answer') return -200;
-        if (d.id === 'entity') return -600;
-        return -400;
+        if (d.nodeType === 'question' || d.nodeType === 'answer') return -150;
+        if (d.id === 'entity') return -500;
+        return -300;
       }))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collision", d3.forceCollide().radius(d => {
@@ -130,19 +164,33 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
         if (d.id === 'entity') return 80;
         return 70;
       }))
-      .force("y", d3.forceY().strength(0.1).y(d => {
+      .force("y", d3.forceY().strength(0.08).y(d => {
         if (d.id === 'entity') return height * 0.2;
         if (d.id === 'anlage' || d.id === 'kunde' || d.id === 'fehler') return height * 0.4;
         if (d.parent === 'anlage' || d.parent === 'kunde' || d.parent === 'fehler') return height * 0.6;
         return height * 0.5;
       }))
       .alpha(1)
-      .alphaDecay(0.02);
+      .alphaDecay(0.05)
+      .velocityDecay(0.4);
 
     simulationRef.current = simulation;
+    
+    // Stop simulation when it's stabilized
+    let tickCount = 0;
+    simulation.on("tick.stabilize", () => {
+      tickCount++;
+      // Stop after a reasonable number of ticks or when alpha is very low
+      if (tickCount > 300 || simulation.alpha() < 0.01) {
+        simulation.stop();
+      }
+    });
 
+    // Create defs for markers and filters
+    const defs = svg.append("defs");
+    
     // Create arrow markers
-    svg.append("defs").selectAll("marker")
+    defs.selectAll("marker")
       .data(["arrow", "arrow-proposed", "arrow-qa", "arrow-selected", "arrow-component"])
       .enter().append("marker")
       .attr("id", d => d)
@@ -161,6 +209,36 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
         if (d === "arrow-component") return "#ff6b6b";
         return "#999";
       });
+    
+    // Create drop shadow filter for selected nodes
+    const filter = defs.append("filter")
+      .attr("id", "drop-shadow")
+      .attr("height", "130%");
+    
+    filter.append("feGaussianBlur")
+      .attr("in", "SourceAlpha")
+      .attr("stdDeviation", 3)
+      .attr("result", "blur");
+    
+    filter.append("feOffset")
+      .attr("in", "blur")
+      .attr("dx", 0)
+      .attr("dy", 2)
+      .attr("result", "offsetBlur");
+    
+    filter.append("feFlood")
+      .attr("in", "offsetBlur")
+      .attr("flood-color", "#ff4444")
+      .attr("flood-opacity", "0.3");
+    
+    filter.append("feComposite")
+      .attr("in2", "offsetBlur")
+      .attr("operator", "in");
+    
+    const feMerge = filter.append("feMerge");
+    feMerge.append("feMergeNode");
+    feMerge.append("feMergeNode")
+      .attr("in", "SourceGraphic");
 
     // Create links
     const link = g.append("g")
@@ -185,7 +263,8 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
         if (d.type !== 'is_a' && d.type !== 'instance_of' && d.type !== 'is_relevant_for' && !d.isProposed) return "url(#arrow-component)";
         if (d.isProposed) return "url(#arrow-proposed)";
         return "url(#arrow)";
-      });
+      })
+      .attr("opacity", 1);
 
     // Create link labels
     const linkLabelGroup = g.append("g")
@@ -215,8 +294,9 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
       .style("cursor", "pointer")
       .on("click", (event, d) => {
         event.stopPropagation();
-        if (onNodeClick) {
-          onNodeClick(d);
+        event.preventDefault();
+        if (onNodeClickRef.current) {
+          setTimeout(() => onNodeClickRef.current(d), 0);
         }
       })
       .on("mouseenter", function(event, d) {
@@ -234,7 +314,8 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
         
         d3.select(this).select(".node-shape")
           .transition()
-          .duration(200)
+          .duration(400)
+          .ease(d3.easeCubicOut)
           .attr("filter", "brightness(1.1)")
           .attr("stroke-width", d.isProposed ? 4 : 3);
           
@@ -253,7 +334,8 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
         
         d3.select(this).select(".node-shape")
           .transition()
-          .duration(200)
+          .duration(400)
+          .ease(d3.easeCubicOut)
           .attr("filter", null)
           .attr("stroke-width", d.isProposed ? 3 : 2);
           
@@ -368,7 +450,10 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
 
     // Drag functions
     function dragstarted(event: d3.D3DragEvent<SVGGElement, Node, Node>, d: Node) {
-      if (!event.active) simulation.alphaTarget(0.3).restart();
+      // Only restart if simulation is not already running
+      if (!event.active && simulation.alpha() < 0.01) {
+        simulation.alphaTarget(0.1).restart();
+      }
       d.fx = d.x;
       d.fy = d.y;
     }
@@ -380,8 +465,11 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
 
     function dragended(event: d3.D3DragEvent<SVGGElement, Node, Node>, d: Node) {
       if (!event.active) simulation.alphaTarget(0);
-      d.fx = null;
-      d.fy = null;
+      // Keep position fixed for a moment to prevent bouncing
+      setTimeout(() => {
+        d.fx = null;
+        d.fy = null;
+      }, 100);
     }
 
     // Initial zoom to fit
@@ -397,7 +485,83 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
       svg.selectAll("*").remove();
       setTooltip({ visible: false, x: 0, y: 0, content: '' });
     };
-  }, [nodes, links, proposedElements, width, height, graphId, onNodeClick]);
+  }, [nodes, links, proposedElements, width, height, graphId]); // onNodeClick removed from dependencies
+
+  // Update visual selection feedback when selectedNodeId changes
+  useEffect(() => {
+    if (!svgRef.current) return;
+    
+    // Small delay to ensure nodes are created
+    const timeoutId = setTimeout(() => {
+      const svg = d3.select(svgRef.current);
+      const g = svg.select('g');
+      
+      if (g.empty()) return;
+    
+    // Update link opacity based on selection
+    g.selectAll('line')
+      .transition()
+      .duration(300)
+      .ease(d3.easeCubicInOut)
+      .attr('opacity', function(d: any) {
+        if (!selectedNodeId) return 1;
+        const sourceId = typeof d.source === 'object' ? d.source.id : d.source;
+        const targetId = typeof d.target === 'object' ? d.target.id : d.target;
+        return (sourceId === selectedNodeId || targetId === selectedNodeId) ? 1 : 0.3;
+      });
+    
+    // Update node opacity and styling
+    g.selectAll('g').each(function(d: any) {
+      if (!d || !d.id) return; // Skip if no data
+      
+      const nodeGroup = d3.select(this);
+      const isSelected = d.id === selectedNodeId;
+      const isConnected = selectedNodeId ? links.some(link => {
+        const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
+        const targetId = typeof link.target === 'object' ? link.target.id : link.target;
+        return (sourceId === selectedNodeId && targetId === d.id) || 
+               (targetId === selectedNodeId && sourceId === d.id);
+      }) : false;
+      
+      nodeGroup
+        .transition()
+        .duration(300)
+        .ease(d3.easeCubicInOut)
+        .attr('opacity', () => {
+          if (!selectedNodeId) return 1;
+          if (isSelected || isConnected) return 1;
+          return 0.3;
+        });
+      
+      // Update stroke for selected node
+      const shapeSelection = nodeGroup.select('.node-shape');
+      if (!shapeSelection.empty()) {
+        shapeSelection
+          .transition()
+          .duration(300)
+          .ease(d3.easeCubicInOut)
+          .attr('stroke', () => {
+            if (isSelected) return '#ff4444';
+            // Return to original stroke color
+            if (d.nodeType === 'question') return d.isProposed ? '#9c27b0' : '#7b1fa2';
+            if (d.nodeType === 'answer') return d.isProposed ? '#4caf50' : '#388e3c';
+            if (d.isProposed) return '#ffc107';
+            if (d.isNew) return '#28a745';
+            if (d.id === 'entity') return '#5c6bc0';
+            if (d.type === 'instance') return '#2196f3';
+            return '#dee2e6';
+          })
+          .attr('stroke-width', () => {
+            if (isSelected) return 4;
+            return d.isProposed ? 3 : 2;
+          })
+          .attr('filter', isSelected ? 'url(#drop-shadow)' : null);
+      }
+    });
+    }, 100); // 100ms delay
+    
+    return () => clearTimeout(timeoutId);
+  }, [selectedNodeId, links]);
 
   // Re-center graph when dimensions change
   useEffect(() => {
@@ -424,97 +588,48 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
   };
 
   return (
-    <div style={{ position: 'relative' }}>
-      <svg ref={svgRef} width={width} height={height} style={{ cursor: 'grab' }} />
+    <div className="relative">
+      <svg ref={svgRef} width={width} height={height} className="cursor-grab" />
       <Tooltip {...tooltip} />
       
       {/* Zoom Controls */}
       {enableZoomControls && (
-        <div style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '5px',
-          backgroundColor: 'white',
-          borderRadius: '8px',
-          padding: '8px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          border: '1px solid #e0e0e0',
-          userSelect: 'none'
-        }}>
-          <div style={{
-            fontSize: '11px',
-            color: '#666',
-            marginBottom: '5px',
-            textAlign: 'center',
-            fontWeight: 'bold',
-            userSelect: 'none'
-          }}>
-            Zoom
-          </div>
-          <button
-            onClick={handleZoomIn}
-            style={{
-              width: '36px',
-              height: '36px',
-              border: 'none',
-              borderRadius: '4px',
-              backgroundColor: '#f5f5f5',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={e => e.currentTarget.style.backgroundColor = '#e0e0e0'}
-            onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-            title="Vergrößern"
-          >
-            <ZoomIn size={18} />
-          </button>
-          <button
-            onClick={handleZoomOut}
-            style={{
-              width: '36px',
-              height: '36px',
-              border: 'none',
-              borderRadius: '4px',
-              backgroundColor: '#f5f5f5',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={e => e.currentTarget.style.backgroundColor = '#e0e0e0'}
-            onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-            title="Verkleinern"
-          >
-            <ZoomOut size={18} />
-          </button>
-          <button
-            onClick={handleResetZoom}
-            style={{
-              width: '36px',
-              height: '36px',
-              border: 'none',
-              borderRadius: '4px',
-              backgroundColor: '#f5f5f5',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              transition: 'all 0.2s'
-            }}
-            onMouseEnter={e => e.currentTarget.style.backgroundColor = '#e0e0e0'}
-            onMouseLeave={e => e.currentTarget.style.backgroundColor = '#f5f5f5'}
-            title="Ansicht zurücksetzen"
-          >
-            <Move size={18} />
-          </button>
-        </div>
+        <Card className="absolute top-3 left-3 shadow-lg p-0">
+          <CardContent className="p-1.5">
+            <div className="text-[10px] font-semibold text-gray-600 mb-1 text-center select-none">
+              Zoom
+            </div>
+            <div className="flex flex-col gap-0.5">
+              <Button
+                onClick={handleZoomIn}
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                title="Vergrößern"
+              >
+                <ZoomIn className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                onClick={handleZoomOut}
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                title="Verkleinern"
+              >
+                <ZoomOut className="h-3.5 w-3.5" />
+              </Button>
+              <Button
+                onClick={handleResetZoom}
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                title="Ansicht zurücksetzen"
+              >
+                <Move className="h-3.5 w-3.5" />
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

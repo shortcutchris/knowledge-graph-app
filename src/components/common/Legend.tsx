@@ -1,5 +1,7 @@
 import React from 'react';
 import { ChevronDown, ChevronUp } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface LegendProps {
   isMinimized: boolean;
@@ -7,121 +9,69 @@ interface LegendProps {
 }
 
 export const Legend: React.FC<LegendProps> = ({ isMinimized, onToggle }) => {
+  if (isMinimized) {
+    return (
+      <Button
+        onClick={onToggle}
+        variant="secondary"
+        size="icon"
+        className="absolute bottom-4 left-4 h-10 w-10 shadow-lg"
+        title="Legende anzeigen"
+      >
+        <ChevronUp className="h-4 w-4" />
+      </Button>
+    );
+  }
+
   return (
-    <div style={{
-      position: 'absolute',
-      bottom: '10px',
-      left: '10px',
-      backgroundColor: 'rgba(255,255,255,0.95)',
-      padding: isMinimized ? '10px' : '15px',
-      borderRadius: '6px',
-      fontSize: '12px',
-      border: '1px solid #e0e0e0',
-      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-      transition: 'all 0.3s ease'
-    }}>
-      <div style={{ 
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        alignItems: 'center',
-        marginBottom: isMinimized ? 0 : '10px'
-      }}>
-        <h4 style={{ 
-          margin: 0,
-          fontSize: '14px', 
-          color: '#333',
-          display: isMinimized ? 'none' : 'block'
-        }}>Legende</h4>
-        <button
-          onClick={onToggle}
-          style={{
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            padding: '2px',
-            display: 'flex',
-            alignItems: 'center',
-            color: '#666'
-          }}
-          title={isMinimized ? 'Legende anzeigen' : 'Legende verbergen'}
-        >
-          {isMinimized ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-        </button>
-      </div>
-      
-      {!isMinimized && (
-        <>
-          <div style={{ marginBottom: '8px', fontWeight: 'bold' }}>Knoten:</div>
-          <div style={{ marginBottom: '5px', paddingLeft: '10px' }}>
-            <span style={{ 
-              display: 'inline-block',
-              width: '20px',
-              height: '12px',
-              backgroundColor: '#e8eaf6',
-              border: '1px solid #5c6bc0',
-              marginRight: '5px',
-              verticalAlign: 'middle'
-            }}></span>
-            Entity (Wurzel)
-          </div>
-          <div style={{ marginBottom: '5px', paddingLeft: '10px' }}>
-            <span style={{ 
-              display: 'inline-block',
-              width: '20px',
-              height: '12px',
-              backgroundColor: '#f8f9fa',
-              border: '1px solid #dee2e6',
-              marginRight: '5px',
-              verticalAlign: 'middle'
-            }}></span>
-            Klasse
-          </div>
-          <div style={{ marginBottom: '5px', paddingLeft: '10px' }}>
-            <span style={{ 
-              display: 'inline-block',
-              width: '20px',
-              height: '12px',
-              backgroundColor: '#e3f2fd',
-              border: '1px solid #2196f3',
-              marginRight: '5px',
-              verticalAlign: 'middle'
-            }}></span>
-            Instanz
-          </div>
-          <div style={{ marginBottom: '5px', paddingLeft: '10px' }}>
-            <span style={{ 
-              display: 'inline-block',
-              width: '16px',
-              height: '16px',
-              backgroundColor: '#e1bee7',
-              border: '1px solid #7b1fa2',
-              borderRadius: '50%',
-              marginRight: '5px',
-              verticalAlign: 'middle'
-            }}></span>
-            Frage
-          </div>
-          <div style={{ marginBottom: '8px', paddingLeft: '10px' }}>
-            <span style={{ 
-              display: 'inline-block',
-              width: '16px',
-              height: '16px',
-              backgroundColor: '#c8e6c9',
-              border: '1px solid #388e3c',
-              borderRadius: '50%',
-              marginRight: '5px',
-              verticalAlign: 'middle'
-            }}></span>
-            Antwort
+    <Card className="absolute bottom-4 left-4 w-56 bg-white/95 backdrop-blur-sm shadow-xl animate-in slide-in-from-bottom-2 p-0">
+      <CardContent className="p-2.5">
+        <div className="flex justify-between items-center mb-2">
+          <h4 className="text-xs font-bold text-gray-700">Legende</h4>
+          <Button
+            onClick={onToggle}
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6 -mr-1"
+            title="Legende verbergen"
+          >
+            <ChevronDown className="h-3 w-3" />
+          </Button>
+        </div>
+        
+        <div className="space-y-2">
+          <div className="space-y-1.5">
+            <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Knoten</p>
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-2.5 bg-indigo-100 border border-indigo-500 rounded-sm"></div>
+                <span className="text-[11px]">Entity</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-2.5 bg-gray-50 border border-gray-300 rounded-sm"></div>
+                <span className="text-[11px]">Klasse</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-4 h-2.5 bg-blue-50 border border-blue-500 rounded-sm"></div>
+                <span className="text-[11px]">Instanz</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-purple-100 border border-purple-600 rounded-full"></div>
+                <span className="text-[11px]">Frage</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 bg-green-100 border border-green-600 rounded-full"></div>
+                <span className="text-[11px]">Antwort</span>
+              </div>
+            </div>
           </div>
           
-          <div style={{ fontSize: '11px', color: '#666', fontStyle: 'italic', marginTop: '10px' }}>
-            <strong>Neu:</strong> Grüner Rand<br/>
-            <strong>Vorgeschlagen:</strong> Gelb gestrichelt<br/>
-            <strong>Tipp:</strong> 30 Jahre Erfahrung werden lebendig!
+          <div className="text-[10px] text-gray-500 pt-1.5 border-t space-y-0.5">
+            <p><span className="font-semibold">Neu:</span> Grün</p>
+            <p><span className="font-semibold">Vorgeschlagen:</span> Gelb/gestrichelt</p>
           </div>
-        </>
-      )}
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };

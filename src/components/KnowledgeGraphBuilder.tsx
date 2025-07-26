@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { FileText, Brain, Maximize2 } from 'lucide-react';
 import type { Node, Link, ProposedElement, GraphDimensions } from '../types';
 import { sampleQAs } from '../data/sampleData';
@@ -9,6 +9,8 @@ import { ForceGraph } from './graph/ForceGraph';
 import { DetailPanel } from './panels/DetailPanel';
 import { Legend } from './common/Legend';
 import { FullscreenGraph } from './graph/FullscreenGraph';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 
 export const KnowledgeGraphBuilder: React.FC = () => {
   const [uploadedDoc, setUploadedDoc] = useState<{ name: string; size: string } | null>(null);
@@ -139,21 +141,11 @@ export const KnowledgeGraphBuilder: React.FC = () => {
   }, []);
 
   return (
-    <div style={{ 
-      display: 'flex', 
-      height: '100vh', 
-      backgroundColor: '#f5f5f5',
-      fontFamily: 'Arial, sans-serif'
-    }}>
+    <div className="flex h-screen bg-gray-50">
       {/* Left Panel - Document Import */}
-      <div style={{ 
-        width: '25%', 
-        backgroundColor: 'white', 
-        borderRight: '1px solid #e0e0e0',
-        padding: '20px'
-      }}>
-        <h2 style={{ marginBottom: '20px', color: '#333' }}>
-          <FileText size={24} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
+      <div className="w-1/4 bg-white border-r p-5">
+        <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-5">
+          <FileText className="h-6 w-6" />
           Dokument Import
         </h2>
         
@@ -166,15 +158,9 @@ export const KnowledgeGraphBuilder: React.FC = () => {
       </div>
 
       {/* Middle Panel - Q&A Extraction & Mapping */}
-      <div style={{ 
-        width: '35%', 
-        backgroundColor: 'white', 
-        borderRight: '1px solid #e0e0e0',
-        padding: '20px',
-        overflowY: 'auto'
-      }}>
-        <h2 style={{ marginBottom: '20px', color: '#333' }}>
-          <Brain size={24} style={{ verticalAlign: 'middle', marginRight: '8px' }} />
+      <div className="w-[35%] bg-white border-r p-5 overflow-y-auto">
+        <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-5">
+          <Brain className="h-6 w-6" />
           Q&A Extraktion & Mapping
         </h2>
         
@@ -188,65 +174,37 @@ export const KnowledgeGraphBuilder: React.FC = () => {
       </div>
 
       {/* Right Panel - Ontology Graph */}
-      <div 
-        id="graph-container"
-        style={{ 
-          width: '40%', 
-          backgroundColor: '#fafafa',
-          padding: '20px',
-          position: 'relative'
-        }}
-      >
-        <h2 style={{ marginBottom: '20px', color: '#333', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span>Wissensgraph</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-            <span style={{ fontSize: '13px', color: '#666' }}>
+      <div id="graph-container" className="w-[40%] bg-gray-50 p-5 relative">
+        <div className="flex justify-between items-center mb-5">
+          <h2 className="text-xl font-semibold text-gray-900">Wissensgraph</h2>
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-gray-600">
               Hover • Klick • Ziehen
             </span>
-            <button
+            <Button
               onClick={() => setIsFullscreen(true)}
-              style={{
-                padding: '6px 12px',
-                backgroundColor: '#007bff',
-                color: 'white',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '5px',
-                transition: 'all 0.2s'
-              }}
-              onMouseEnter={e => e.currentTarget.style.backgroundColor = '#0056b3'}
-              onMouseLeave={e => e.currentTarget.style.backgroundColor = '#007bff'}
-              title="Vollbildansicht"
+              size="sm"
+              className="gap-2"
             >
-              <Maximize2 size={16} />
+              <Maximize2 className="h-4 w-4" />
               Vollbild
-            </button>
+            </Button>
           </div>
-        </h2>
+        </div>
         
-        <div style={{ 
-          position: 'relative',
-          height: 'calc(100% - 60px)',
-          backgroundColor: 'white',
-          border: '1px solid #e0e0e0',
-          borderRadius: '8px',
-          overflow: 'hidden'
-        }}>
+        <Card className="relative h-[calc(100%-60px)] overflow-hidden">
           <ForceGraph 
             nodes={ontologyNodes}
             links={ontologyLinks}
             proposedElements={proposedElements}
             width={graphDimensions.width}
             height={graphDimensions.height}
-            onNodeClick={(node) => {
+            onNodeClick={useCallback((node) => {
               setSelectedNode(node);
               setIsPanelOpen(!!node);
-            }}
-            enableZoomControls={false}
+            }, [])}
+            selectedNodeId={selectedNode?.id}
+            enableZoomControls={true}
             graphId="main"
           />
           
@@ -266,19 +224,8 @@ export const KnowledgeGraphBuilder: React.FC = () => {
             isMinimized={isLegendMinimized}
             onToggle={() => setIsLegendMinimized(!isLegendMinimized)}
           />
-        </div>
+        </Card>
       </div>
-      
-      <style>{`
-        @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
-        }
-      `}</style>
       
       {/* Fullscreen Graph */}
       {isFullscreen && (
@@ -287,8 +234,6 @@ export const KnowledgeGraphBuilder: React.FC = () => {
           links={ontologyLinks}
           proposedElements={proposedElements}
           onClose={() => setIsFullscreen(false)}
-          onNodeClick={setSelectedNode}
-          selectedNode={selectedNode}
         />
       )}
     </div>

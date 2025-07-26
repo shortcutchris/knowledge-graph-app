@@ -1,6 +1,18 @@
 import React from 'react';
-import { HelpCircle, MessageSquare, Database, Tag, Info } from 'lucide-react';
+import { HelpCircle, MessageSquare, Database, Tag, Info, ArrowRight, ArrowLeft, X } from 'lucide-react';
 import type { Node, Link } from '../../types';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogPortal,
+} from '@/components/ui/dialog';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface DetailPanelProps {
   node: Node | null;
@@ -10,9 +22,10 @@ interface DetailPanelProps {
 }
 
 export const DetailPanel: React.FC<DetailPanelProps> = ({ node, isOpen, onClose, graphLinks }) => {
-  if (!isOpen || !node) return null;
   
   const getNodeTypeInfo = () => {
+    if (!node) return { icon: <Info size={20} />, color: '#666', bg: '#f5f5f5' };
+    
     switch(node.nodeType) {
       case 'question':
         return { icon: <HelpCircle size={20} />, color: '#7b1fa2', bg: '#e1bee7' };
@@ -30,7 +43,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ node, isOpen, onClose,
   const typeInfo = getNodeTypeInfo();
   
   // Find connected nodes
-  const connectedNodes = graphLinks
+  const connectedNodes = node ? graphLinks
     .filter(link => {
       const sourceId = typeof link.source === 'object' ? link.source.id : link.source;
       const targetId = typeof link.target === 'object' ? link.target.id : link.target;
@@ -48,123 +61,129 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ node, isOpen, onClose,
         direction: sourceId === node.id ? 'outgoing' : 'incoming',
         attributes: link.attributes
       };
-    });
+    }) : [];
   
   return (
-    <div style={{
-      position: 'absolute',
-      right: '20px',
-      top: '80px',
-      width: '350px',
-      backgroundColor: 'white',
-      border: '1px solid #e0e0e0',
-      borderRadius: '8px',
-      boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-      zIndex: 100,
-      maxHeight: 'calc(100vh - 120px)',
-      overflowY: 'auto'
-    }}>
-      {/* Header */}
-      <div style={{
-        padding: '15px',
-        backgroundColor: typeInfo.bg,
-        borderBottom: '1px solid #e0e0e0',
-        borderRadius: '8px 8px 0 0',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <div style={{ color: typeInfo.color }}>{typeInfo.icon}</div>
-          <h3 style={{ margin: 0, fontSize: '16px', color: typeInfo.color }}>
-            {node.label || node.id}
-          </h3>
-        </div>
-        <button
-          onClick={onClose}
-          style={{
-            background: 'none',
-            border: 'none',
-            fontSize: '20px',
-            cursor: 'pointer',
-            color: '#666',
-            padding: '0 5px'
-          }}
-        >
-          ×
-        </button>
-      </div>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogPortal>
+        <DialogContent className="max-w-[500px] max-h-[80vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()} showCloseButton={false}>
+          {node && (
+          <>
+            <DialogHeader className="flex-shrink-0">
+              <div 
+                className="flex items-center gap-3 p-4 rounded-lg -mx-6 -mt-6"
+                style={{ backgroundColor: typeInfo.bg }}
+              >
+                <div style={{ color: typeInfo.color }}>
+                  {typeInfo.icon}
+                </div>
+                <DialogTitle className="flex-1" style={{ color: typeInfo.color }}>
+                  {node.label || node.id}
+                </DialogTitle>
+                <Button
+                  onClick={onClose}
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 rounded-full"
+                  style={{ color: typeInfo.color }}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+              <DialogDescription className="sr-only">
+                Details for {node.label || node.id}
+              </DialogDescription>
+            </DialogHeader>
       
-      {/* Content */}
-      <div style={{ padding: '15px' }}>
-        {/* Node Information */}
-        <div style={{ marginBottom: '20px' }}>
-          <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#666' }}>Knoten-Information</h4>
-          <div style={{ fontSize: '13px', color: '#333' }}>
-            <p style={{ margin: '5px 0' }}><strong>ID:</strong> {node.id}</p>
-            <p style={{ margin: '5px 0' }}><strong>Typ:</strong> {node.nodeType || node.type}</p>
-            {node.parent && <p style={{ margin: '5px 0' }}><strong>Elternklasse:</strong> {node.parent}</p>}
-            {node.isNew && <p style={{ margin: '5px 0' }}><strong>Status:</strong> Neu hinzugefügt</p>}
-            {node.isProposed && <p style={{ margin: '5px 0' }}><strong>Status:</strong> Vorgeschlagen</p>}
-          </div>
-        </div>
-        
-        {/* Q&A Content */}
-        {(node.nodeType === 'question' || node.nodeType === 'answer') && node.content && (
-          <div style={{ marginBottom: '20px' }}>
-            <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#666' }}>Inhalt</h4>
-            <div style={{
-              fontSize: '13px',
-              color: '#333',
-              backgroundColor: '#f8f9fa',
-              padding: '10px',
-              borderRadius: '4px',
-              lineHeight: '1.4'
-            }}>
-              {node.content}
-            </div>
-          </div>
-        )}
-        
-        {/* Connected Nodes */}
-        {connectedNodes.length > 0 && (
-          <div>
-            <h4 style={{ fontSize: '14px', marginBottom: '10px', color: '#666' }}>
-              Verbindungen ({connectedNodes.length})
-            </h4>
-            <div style={{ fontSize: '13px' }}>
-              {connectedNodes.map((connection, idx) => (
-                <div key={idx} style={{
-                  padding: '8px',
-                  marginBottom: '8px',
-                  backgroundColor: '#f8f9fa',
-                  borderRadius: '4px',
-                  borderLeft: `3px solid ${
-                    connection.relationship === 'is_relevant_for' ? '#9c27b0' :
-                    connection.relationship === 'is_a' || connection.relationship === 'instance_of' ? 
-                      (connection.direction === 'outgoing' ? '#28a745' : '#007bff') :
-                    '#ff6b6b'
-                  }`
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                    {connection.direction === 'incoming' && <span>←</span>}
-                    <strong>{connection.relationship}</strong>
-                    {connection.direction === 'outgoing' && <span>→</span>}
-                    <span>{connection.node.label || connection.node.id}</span>
+            <div className="flex-1 overflow-y-auto mt-6 space-y-6 pr-2">
+              {/* Node Information */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-600 mb-3">Knoten-Information</h4>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">ID:</span>
+                    <span className="font-medium">{node.id}</span>
                   </div>
-                  {connection.attributes && (
-                    <div style={{ fontSize: '11px', color: '#666', marginTop: '4px' }}>
-                      {Object.entries(connection.attributes).map(([k, v]) => (
-                        <span key={k}>{k}: {v}</span>
-                      )).join(', ')}
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Typ:</span>
+                    <span className="font-medium">{node.nodeType || node.type}</span>
+                  </div>
+                  {node.parent && (
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">Elternklasse:</span>
+                      <span className="font-medium">{node.parent}</span>
+                    </div>
+                  )}
+                  {(node.isNew || node.isProposed) && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-500">Status:</span>
+                      {node.isNew && <Badge variant="secondary">Neu hinzugefügt</Badge>}
+                      {node.isProposed && <Badge variant="outline">Vorgeschlagen</Badge>}
                     </div>
                   )}
                 </div>
-              ))}
+              </div>
+        
+              <Separator />
+
+              {/* Q&A Content */}
+              {(node.nodeType === 'question' || node.nodeType === 'answer') && node.content && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-3">Inhalt</h4>
+                  <Card className="bg-gray-50">
+                    <CardContent className="p-4">
+                      <p className="text-sm leading-relaxed">{node.content}</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+        
+              {connectedNodes.length > 0 && <Separator />}
+
+              {/* Connected Nodes */}
+              {connectedNodes.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-3">
+                    Verbindungen ({connectedNodes.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {connectedNodes.map((connection, idx) => (
+                      <Card 
+                        key={idx}
+                        className={`border-l-4 ${
+                          connection.relationship === 'is_relevant_for' ? 'border-l-purple-600' :
+                          connection.relationship === 'is_a' || connection.relationship === 'instance_of' ? 
+                            (connection.direction === 'outgoing' ? 'border-l-green-600' : 'border-l-blue-600') :
+                          'border-l-red-500'
+                        }`}
+                      >
+                        <CardContent className="p-3">
+                          <div className="flex items-center gap-2 text-sm">
+                            {connection.direction === 'incoming' && <ArrowLeft className="h-3 w-3" />}
+                            <span className="font-semibold">{connection.relationship}</span>
+                            {connection.direction === 'outgoing' && <ArrowRight className="h-3 w-3" />}
+                            <span className="text-gray-700">{connection.node.label || connection.node.id}</span>
+                          </div>
+                          {connection.attributes && (
+                            <div className="mt-2 text-xs text-gray-500">
+                              {Object.entries(connection.attributes).map(([k, v]) => (
+                                <span key={k} className="mr-3">
+                                  {k}: {v}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
-        )}
-      </div>
-    </div>
+          </>
+          )}
+        </DialogContent>
+      </DialogPortal>
+    </Dialog>
   );
 };
