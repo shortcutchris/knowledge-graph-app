@@ -42,6 +42,31 @@ export interface QA {
   entities: Entity[];
   predicates: Predicate[];
   newClassProposal?: ClassProposal | null;
+  metadata?: QAMetadata;
+}
+
+export interface QAMetadata {
+  datum?: string;
+  kategorie?: string;
+  schwierigkeit?: 'niedrig' | 'mittel' | 'hoch' | 'kritisch' | 'sozial';
+  kostenersparnis?: string;
+  zeitersparnis?: string;
+  betroffene_kunden?: string[];
+  workaround?: boolean;
+  wirtschaftlicher_effekt?: string;
+  dokumentation?: string;
+  priorität?: string;
+  compliance_relevant?: boolean;
+  skalierbar?: boolean;
+  detektivarbeit?: boolean;
+  ähnliche_fälle?: string[];
+  erfahrungsbasis?: string;
+  kosteneinsparung?: string;
+  geldersparnis?: string;
+  soft_skills?: boolean;
+  wichtigkeit?: string;
+  rechtliche_grauzone?: boolean;
+  nur_temporär?: boolean;
 }
 
 export interface Entity {

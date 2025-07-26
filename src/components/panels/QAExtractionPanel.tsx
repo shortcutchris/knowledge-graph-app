@@ -77,6 +77,40 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                   <p className="font-semibold mb-2 text-blue-900">Antwort:</p>
                   <p className="text-blue-800">{extractedQAs[currentQAIndex].answer}</p>
                 </div>
+                
+                {/* Metadaten anzeigen */}
+                {extractedQAs[currentQAIndex].metadata && (
+                  <div className="mt-4 pt-4 border-t border-blue-200">
+                    <div className="flex flex-wrap gap-2">
+                      {extractedQAs[currentQAIndex].metadata?.kategorie && (
+                        <Badge variant="secondary" className="bg-blue-100 text-blue-700 text-xs">
+                          {extractedQAs[currentQAIndex].metadata.kategorie}
+                        </Badge>
+                      )}
+                      {extractedQAs[currentQAIndex].metadata?.schwierigkeit && (
+                        <Badge variant="secondary" className={`text-xs
+                          ${extractedQAs[currentQAIndex].metadata.schwierigkeit === 'kritisch' ? 'bg-red-100 text-red-700' : ''}
+                          ${extractedQAs[currentQAIndex].metadata.schwierigkeit === 'hoch' ? 'bg-orange-100 text-orange-700' : ''}
+                          ${extractedQAs[currentQAIndex].metadata.schwierigkeit === 'mittel' ? 'bg-yellow-100 text-yellow-700' : ''}
+                          ${extractedQAs[currentQAIndex].metadata.schwierigkeit === 'niedrig' ? 'bg-green-100 text-green-700' : ''}
+                          ${extractedQAs[currentQAIndex].metadata.schwierigkeit === 'sozial' ? 'bg-purple-100 text-purple-700' : ''}
+                        `}>
+                          {extractedQAs[currentQAIndex].metadata.schwierigkeit}
+                        </Badge>
+                      )}
+                      {extractedQAs[currentQAIndex].metadata?.kostenersparnis && (
+                        <Badge variant="secondary" className="bg-green-100 text-green-700 text-xs">
+                          💰 {extractedQAs[currentQAIndex].metadata.kostenersparnis}
+                        </Badge>
+                      )}
+                      {extractedQAs[currentQAIndex].metadata?.datum && (
+                        <span className="text-xs text-gray-500">
+                          📅 {new Date(extractedQAs[currentQAIndex].metadata.datum!).toLocaleDateString('de-DE')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
             
@@ -89,7 +123,11 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                   <h5 className="text-sm font-semibold text-gray-600 mb-2">Entitäten:</h5>
                   <div className="space-y-2">
                     {extractedQAs[currentQAIndex].entities.map((entity, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2 rounded bg-gray-100 border border-gray-200">
+                      <div key={idx} className={`flex items-center justify-between p-2 rounded border ${
+                        entity.isNew 
+                          ? 'bg-yellow-50 border-yellow-300' 
+                          : 'bg-blue-50 border-blue-300'
+                      }`}>
                         <span className="text-sm font-medium">{entity.text}</span>
                         {entity.isNew && <Badge className="bg-green-500 text-white hover:bg-green-600">NEU</Badge>}
                       </div>
@@ -101,7 +139,11 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                   <h5 className="text-sm font-semibold text-gray-600 mb-2">Beziehungen:</h5>
                   <div className="space-y-2">
                     {extractedQAs[currentQAIndex].predicates.map((predicate, idx) => (
-                      <div key={idx} className="flex items-center justify-between p-2 rounded bg-gray-100 border border-gray-200">
+                      <div key={idx} className={`flex items-center justify-between p-2 rounded border ${
+                        predicate.isNew 
+                          ? 'bg-yellow-50 border-yellow-300' 
+                          : 'bg-blue-50 border-blue-300'
+                      }`}>
                         <div className="text-sm">
                           <span className="font-medium">{predicate.text}</span>
                           {predicate.attributes && (
@@ -226,32 +268,73 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">✓</span>
                     <div>
-                      <span className="font-medium">"Welcher Kunde hat die meisten F42-Fehler?"</span>
-                      <span className="text-sm text-gray-600 block">Muster über alle Kunden erkannt</span>
+                      <span className="font-medium">"Welche Anlagen haben hydraulische Probleme?"</span>
+                      <span className="text-sm text-gray-600 block">→ X500 zeigt Druckschwankungen (Q1), FB-2000 mit Getriebeproblemen (Q3)</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">✓</span>
                     <div>
-                      <span className="font-medium">"Welche Ersatzteile passen NICHT, obwohl kompatibel?"</span>
-                      <span className="text-sm text-gray-600 block">47 versteckte Fallen gefunden!</span>
+                      <span className="font-medium">"Welche Kunden kennt Wagner persönlich?"</span>
+                      <span className="text-sm text-gray-600 block">→ BMW München, Bosch, BMW Werk 2 (Meister Huber), VW Wolfsburg, Daimler Stuttgart, Audi Ingolstadt (Dr. Weber)</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">✓</span>
                     <div>
-                      <span className="font-medium">"Wartungsplan für neuen Kunden mit X500?"</span>
-                      <span className="text-sm text-gray-600 block">Best Practices automatisch angewendet</span>
+                      <span className="font-medium">"Welche Servicepartner sind vertrauenswürdig?"</span>
+                      <span className="text-sm text-gray-600 block">→ Hydrotech Augsburg (Hydraulik), Müller Präzisionstechnik (Mechanik), OELCHECK Brannenburg (Ölanalyse)</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-green-600 mt-0.5">✓</span>
                     <div>
-                      <span className="font-medium">"Wer ist Ansprechpartner bei BMW für Notfälle?"</span>
-                      <span className="text-sm text-gray-600 block">Kontakte aus E-Mails extrahiert</span>
+                      <span className="font-medium">"Welche Firmware-Bugs sind bekannt?"</span>
+                      <span className="text-sm text-gray-600 block">→ Siemens S7-1500 V2.8.1 (Geisterfehler), Sicherheits-SPS vor 2019 (Not-Aus Bug)</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <div>
+                      <span className="font-medium">"Welche Umgebungsfaktoren stören Anlagen?"</span>
+                      <span className="text-sm text-gray-600 block">→ Gabelstapler-Ladestationen (Netzoberwellen Di+Do 14-16), Audi Halle 4 (Vibration), Staub bei Daimler</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <div>
+                      <span className="font-medium">"Welche Kostenersparnisse sind dokumentiert?"</span>
+                      <span className="text-sm text-gray-600 block">→ 3.520€ (Hydraulik), 3.550€ (Mechanik), 2.5 Mio€/Jahr (Prozessoptimierung VW), ROI 1:15 (Ölanalyse)</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <div>
+                      <span className="font-medium">"Welche Sicherheitsprobleme sind kritisch?"</span>
+                      <span className="text-sm text-gray-600 block">→ Not-Aus Defekt mit Wachmann-Überbrückung, Software-Lizenz Ablauf, BG-Audit Dokumentationspflicht</span>
+                    </div>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-600 mt-0.5">✓</span>
+                    <div>
+                      <span className="font-medium">"Welche versteckten Optimierungen gibt es?"</span>
+                      <span className="text-sm text-gray-600 block">→ Parameter P412 auf 95% (spart 5-8s), Ölwechsel-Matrix statt Herstellerangaben, ElectroAsia Schütze (60% günstiger)</span>
                     </div>
                   </li>
                 </ul>
+                
+                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <h5 className="text-blue-900 font-semibold mb-2">💡 Weitere mögliche Abfragen durch Graphen-Verknüpfungen:</h5>
+                  <ul className="space-y-1 text-sm text-blue-800">
+                    <li>• "Zeige alle Komponenten mit Konstruktionsfehlern" → Schneckengetriebe SG-450</li>
+                    <li>• "Welche Anlagen sind bei welchen Kunden?" → X500 bei BMW München, X300 Schütz-Inkompatibilität</li>
+                    <li>• "Alle Notfall-Lösungen mit Sicherheitsrisiko?" → Not-Aus Überbrückung, Temperatur-Simulation</li>
+                    <li>• "Dokumentierte Inkompatibilitäten?" → Schütz K4 mit X300 vor 2018, Firmware 2.4+ mit Bosch-SPS</li>
+                    <li>• "Kunden mit speziellen Kommunikationsregeln?" → Audi (Dr. Weber), BMW Werk 2 (Meister Huber)</li>
+                    <li>• "Wartungsstrategien mit ROI &gt; 10?" → Ölanalyse (1:15), Prozessoptimierung P412</li>
+                  </ul>
+                </div>
+                
                 <p className="mt-6 text-sm font-medium text-green-700 italic">
                   30 Jahre Erfahrung von Herrn Wagner - jetzt für immer verfügbar!
                 </p>

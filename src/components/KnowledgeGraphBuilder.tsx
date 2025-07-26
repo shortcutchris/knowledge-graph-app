@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { FileText, Brain, Maximize2 } from 'lucide-react';
+import { FileText, Brain, Maximize2, ChevronLeft, ChevronRight } from 'lucide-react';
 import type { Node, Link, ProposedElement, GraphDimensions } from '../types';
-import { sampleQAs } from '../data/sampleData';
+import { sampleQAs, wissenStatistiken } from '../data/sampleData';
+import { enhancedOntologyNodes, enhancedOntologyLinks } from '../data/enhancedOntology';
 import { generateProposedElements } from '../utils/proposedElements';
 import { DocumentUploadPanel } from './panels/DocumentUploadPanel';
 import { QAExtractionPanel } from './panels/QAExtractionPanel';
@@ -19,16 +20,17 @@ export const KnowledgeGraphBuilder: React.FC = () => {
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isLegendMinimized, setIsLegendMinimized] = useState(false);
+  const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
   const [ontologyNodes, setOntologyNodes] = useState<Node[]>([
-    { id: 'entity', label: 'Entity', type: 'class', nodeType: 'class' },
-    { id: 'anlage', label: 'Anlage', type: 'class', parent: 'entity', nodeType: 'class' },
-    { id: 'kunde', label: 'Kunde', type: 'class', parent: 'entity', nodeType: 'class' },
-    { id: 'fehler', label: 'Fehler', type: 'class', parent: 'entity', nodeType: 'class' },
+    { id: 'herr_wagner', label: 'Herr Wagner', type: 'person', nodeType: 'person' },
+    { id: 'anlage', label: 'Anlage', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
+    { id: 'kunde', label: 'Kunde', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
+    { id: 'fehler', label: 'Fehler', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
   ]);
   const [ontologyLinks, setOntologyLinks] = useState<Link[]>([
-    { source: 'anlage', target: 'entity', type: 'is_a', id: 'link1' },
-    { source: 'kunde', target: 'entity', type: 'is_a', id: 'link2' },
-    { source: 'fehler', target: 'entity', type: 'is_a', id: 'link3' },
+    { source: 'herr_wagner', target: 'anlage', type: 'kennt' },
+    { source: 'herr_wagner', target: 'kunde', type: 'betreut' },
+    { source: 'herr_wagner', target: 'fehler', type: 'löst' },
   ]);
   const [proposedElements, setProposedElements] = useState<ProposedElement[]>([]);
   const [processStep, setProcessStep] = useState<'upload' | 'extract' | 'map' | 'complete'>('upload');
@@ -53,11 +55,13 @@ export const KnowledgeGraphBuilder: React.FC = () => {
     const newNodes = [...ontologyNodes];
     const newLinks = [...ontologyLinks];
     
+    // Process proposed elements (which already include Q&A nodes)
     proposedElements.forEach(element => {
       if (element.nodeType) {
+        const nodeId = element.id!;
         newNodes.push({
           ...element,
-          id: element.id!,
+          id: nodeId,
           label: element.label!,
           isNew: true,
           isProposed: false
@@ -65,7 +69,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
         
         if (element.type === 'class' && element.parent) {
           newLinks.push({
-            source: element.id!,
+            source: nodeId,
             target: element.parent,
             type: 'is_a'
           });
@@ -85,7 +89,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
     
     if (currentQAIndex < extractedQAs.length - 1) {
       setCurrentQAIndex(currentQAIndex + 1);
-      const nextQA = sampleQAs[currentQAIndex + 1];
+      const nextQA = extractedQAs[currentQAIndex + 1];
       setProposedElements(generateProposedElements(nextQA, currentQAIndex + 1));
     } else {
       setProcessStep('complete');
@@ -110,15 +114,15 @@ export const KnowledgeGraphBuilder: React.FC = () => {
     setSelectedNode(null);
     setIsPanelOpen(false);
     setOntologyNodes([
-      { id: 'entity', label: 'Entity', type: 'class', nodeType: 'class' },
-      { id: 'anlage', label: 'Anlage', type: 'class', parent: 'entity', nodeType: 'class' },
-      { id: 'kunde', label: 'Kunde', type: 'class', parent: 'entity', nodeType: 'class' },
-      { id: 'fehler', label: 'Fehler', type: 'class', parent: 'entity', nodeType: 'class' },
+      { id: 'herr_wagner', label: 'Herr Wagner', type: 'person', nodeType: 'person' },
+      { id: 'anlage', label: 'Anlage', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
+      { id: 'kunde', label: 'Kunde', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
+      { id: 'fehler', label: 'Fehler', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
     ]);
     setOntologyLinks([
-      { source: 'anlage', target: 'entity', type: 'is_a', id: 'link1' },
-      { source: 'kunde', target: 'entity', type: 'is_a', id: 'link2' },
-      { source: 'fehler', target: 'entity', type: 'is_a', id: 'link3' },
+      { source: 'herr_wagner', target: 'anlage', type: 'kennt' },
+      { source: 'herr_wagner', target: 'kunde', type: 'betreut' },
+      { source: 'herr_wagner', target: 'fehler', type: 'löst' },
     ]);
     setProposedElements([]);
     setProcessStep('upload');
@@ -140,41 +144,93 @@ export const KnowledgeGraphBuilder: React.FC = () => {
     return () => window.removeEventListener('resize', updateDimensions);
   }, []);
 
+  // Update dimensions when left panel is collapsed/expanded
+  useEffect(() => {
+    const updateDimensions = () => {
+      const rightPanel = document.getElementById('graph-container');
+      if (rightPanel) {
+        setGraphDimensions({
+          width: rightPanel.offsetWidth - 40,
+          height: rightPanel.offsetHeight - 100
+        });
+      }
+    };
+    
+    // Small delay to wait for CSS transition
+    const timeoutId = setTimeout(updateDimensions, 300);
+    return () => clearTimeout(timeoutId);
+  }, [isLeftPanelCollapsed]);
+
   return (
     <div className="flex h-screen bg-gray-50">
-      {/* Left Panel - Document Import */}
-      <div className="w-1/4 bg-white border-r p-5">
-        <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-5">
-          <FileText className="h-6 w-6" />
-          Dokument Import
-        </h2>
-        
-        <DocumentUploadPanel
-          uploadedDoc={uploadedDoc}
-          onDocumentUpload={handleDocumentUpload}
-          processStep={processStep}
-          onReset={resetDemo}
-        />
+      {/* Left Panel - Document Import (Collapsible) */}
+      <div className={`${isLeftPanelCollapsed ? 'w-12' : 'w-1/4'} bg-white border-r flex flex-col transition-all duration-300 relative`}>
+        {isLeftPanelCollapsed ? (
+          <div className="flex items-center justify-center h-full">
+            <Button
+              onClick={() => setIsLeftPanelCollapsed(false)}
+              variant="ghost"
+              size="icon"
+              className="h-8 w-8"
+              title="Panel öffnen"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <>
+            <div className="p-5 pb-0">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900">
+                  <FileText className="h-6 w-6" />
+                  Dokument Import
+                </h2>
+                <Button
+                  onClick={() => setIsLeftPanelCollapsed(true)}
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8 -mr-2"
+                  title="Panel minimieren"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto px-5 pb-5">
+              <DocumentUploadPanel
+                uploadedDoc={uploadedDoc}
+                onDocumentUpload={handleDocumentUpload}
+                processStep={processStep}
+                onReset={resetDemo}
+              />
+            </div>
+          </>
+        )}
       </div>
 
       {/* Middle Panel - Q&A Extraction & Mapping */}
-      <div className="w-[35%] bg-white border-r p-5 overflow-y-auto">
-        <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-5">
-          <Brain className="h-6 w-6" />
-          Q&A Extraktion & Mapping
-        </h2>
+      <div className={`${isLeftPanelCollapsed ? 'w-[40%]' : 'w-[35%]'} bg-white border-r flex flex-col transition-all duration-300`}>
+        <div className="p-5 pb-0">
+          <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-5">
+            <Brain className="h-6 w-6" />
+            Q&A Extraktion & Mapping
+          </h2>
+        </div>
         
-        <QAExtractionPanel
-          processStep={processStep}
-          extractedQAs={extractedQAs}
-          currentQAIndex={currentQAIndex}
-          onConfirmMapping={handleConfirmMapping}
-          onSkipMapping={handleSkipMapping}
-        />
+        <div className="flex-1 overflow-y-auto px-5 pb-5">
+          <QAExtractionPanel
+            processStep={processStep}
+            extractedQAs={extractedQAs}
+            currentQAIndex={currentQAIndex}
+            onConfirmMapping={handleConfirmMapping}
+            onSkipMapping={handleSkipMapping}
+          />
+        </div>
       </div>
 
       {/* Right Panel - Ontology Graph */}
-      <div id="graph-container" className="w-[40%] bg-gray-50 p-5 relative">
+      <div id="graph-container" className={`${isLeftPanelCollapsed ? 'flex-1' : 'w-[40%]'} bg-gray-50 p-5 relative transition-all duration-300`}>
         <div className="flex justify-between items-center mb-5">
           <h2 className="text-xl font-semibold text-gray-900">Wissensgraph</h2>
           <div className="flex items-center gap-4">

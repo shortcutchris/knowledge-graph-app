@@ -44,8 +44,8 @@ export const Legend: React.FC<LegendProps> = ({ isMinimized, onToggle }) => {
             <p className="text-[10px] font-semibold text-gray-600 uppercase tracking-wider">Knoten</p>
             <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <div className="w-4 h-2.5 bg-indigo-100 border border-indigo-500 rounded-sm"></div>
-                <span className="text-[11px]">Entity</span>
+                <div className="w-3 h-3 bg-blue-100 border-2 border-blue-600 rounded-full"></div>
+                <span className="text-[11px]">Person (Herr Wagner)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-2.5 bg-gray-50 border border-gray-300 rounded-sm"></div>

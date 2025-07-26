@@ -1,6 +1,7 @@
 import type { QA } from '../types';
 
-export const sampleQAs: QA[] = [
+// Original simplified data - keeping for backwards compatibility
+export const sampleQAsSimple: QA[] = [
   {
     id: 'qa1',
     question: "Was tun bei Fehler F42 an Schaltanlage X500?",
@@ -94,3 +95,6 @@ export const sampleQAs: QA[] = [
     }
   }
 ];
+
+// Import enhanced data
+export { enhancedSampleQAs as sampleQAs, kategorien, wissenStatistiken } from './sampleData_enhanced';

@@ -6,15 +6,21 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
       type: 'question',
       nodeType: 'question',
       id: `q_${qa.id}`,
-      label: 'Q',
+      label: `Q${qaIndex + 1}`,
       content: qa.question
     },
     {
       type: 'answer',
       nodeType: 'answer',
       id: `a_${qa.id}`,
-      label: 'A',
+      label: `A${qaIndex + 1}`,
       content: qa.answer
+    },
+    {
+      type: 'edge',
+      from: `q_${qa.id}`,
+      to: `a_${qa.id}`,
+      label: 'has_answer'
     }
   ];
 
@@ -27,7 +33,7 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           nodeType: 'class',
           name: 'Komponente',
           label: 'Komponente',
-          parent: 'entity',
+          parent: 'herr_wagner',
           id: 'komponente'
         },
         {
@@ -126,7 +132,7 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           nodeType: 'class',
           name: 'Firmware',
           label: 'Firmware',
-          parent: 'entity',
+          parent: 'herr_wagner',
           id: 'firmware'
         },
         {
@@ -182,7 +188,7 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           nodeType: 'class',
           name: 'Wartungshinweis',
           label: 'Wartungshinweis',
-          parent: 'entity',
+          parent: 'herr_wagner',
           id: 'wartungshinweis'
         },
         {
@@ -287,7 +293,7 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           nodeType: 'class',
           name: 'Umgebungsfaktor',
           label: 'Umgebungsfaktor',
-          parent: 'entity',
+          parent: 'herr_wagner',
           id: 'umgebungsfaktor'
         },
         {
@@ -331,6 +337,294 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           type: 'edge',
           from: `a_${qa.id}`,
           to: 'staubproblem',
+          label: 'is_relevant_for'
+        }
+      ];
+
+    case 5: // Q6 - Umweltbedingungen
+      return [
+        ...baseElements,
+        {
+          type: 'class',
+          nodeType: 'class',
+          name: 'Störquelle',
+          label: 'Störquelle',
+          parent: 'herr_wagner',
+          id: 'stoerquelle'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'gabelstapler_ladestation',
+          label: 'Gabelstapler-Ladestation'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'frequenzumrichter_fu200',
+          label: 'Frequenzumrichter FU-200'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'netzfilter_nf',
+          label: 'Netzfilter NF-THD-40'
+        },
+        {
+          type: 'edge',
+          from: 'gabelstapler_ladestation',
+          to: 'stoerquelle',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'frequenzumrichter_fu200',
+          to: 'komponente',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'frequenzumrichter_fu200',
+          to: 'gabelstapler_ladestation',
+          label: 'gestört_durch',
+          attributes: { typ: 'Netzoberwellen', zeitfenster: 'Di+Do 14-16' }
+        },
+        {
+          type: 'edge',
+          from: 'frequenzumrichter_fu200',
+          to: 'netzfilter_nf',
+          label: 'entstörbar_mit',
+          attributes: { kosten: '1200€', wirksamkeit: '100%' }
+        },
+        {
+          type: 'edge',
+          from: `q_${qa.id}`,
+          to: 'stoerquelle',
+          label: 'is_relevant_for'
+        },
+        {
+          type: 'edge',
+          from: `a_${qa.id}`,
+          to: 'netzfilter_nf',
+          label: 'is_relevant_for'
+        }
+      ];
+
+    case 6: // Q7 - Wartungsstrategie
+      return [
+        ...baseElements,
+        {
+          type: 'class',
+          nodeType: 'class',
+          name: 'Wartungsstrategie',
+          label: 'Wartungsstrategie',
+          parent: 'herr_wagner',
+          id: 'wartungsstrategie'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'oelwechsel_matrix',
+          label: 'Ölwechsel-Matrix'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'oelcheck',
+          label: 'OELCHECK Brannenburg'
+        },
+        {
+          type: 'edge',
+          from: 'oelwechsel_matrix',
+          to: 'wartungsstrategie',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'oelwechsel_matrix',
+          to: 'oelcheck',
+          label: 'validiert_durch',
+          attributes: { methode: 'Ölanalyse', roi: '1:15' }
+        },
+        {
+          type: 'edge',
+          from: `q_${qa.id}`,
+          to: 'oelwechsel_matrix',
+          label: 'is_relevant_for'
+        },
+        {
+          type: 'edge',
+          from: `a_${qa.id}`,
+          to: 'wartungsstrategie',
+          label: 'is_relevant_for'
+        }
+      ];
+
+    case 7: // Q8 - Ersatzteil-Management
+      return [
+        ...baseElements,
+        {
+          type: 'class',
+          nodeType: 'class',
+          name: 'Ersatzteilqualität',
+          label: 'Ersatzteilqualität',
+          parent: 'herr_wagner',
+          id: 'ersatzteilqualitaet'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'kugellager_6205',
+          label: 'Kugellager 6205-2RS'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'wagner_liste',
+          label: 'Wagner schwarze Liste'
+        },
+        {
+          type: 'edge',
+          from: 'kugellager_6205',
+          to: 'ersatzteilqualitaet',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'kugellager_6205',
+          to: 'wagner_liste',
+          label: 'dokumentiert_in',
+          attributes: { bewertung: 'durchgefallen', lebensdauer: '3 Monate' }
+        },
+        {
+          type: 'edge',
+          from: `q_${qa.id}`,
+          to: 'ersatzteilqualitaet',
+          label: 'is_relevant_for'
+        },
+        {
+          type: 'edge',
+          from: `a_${qa.id}`,
+          to: 'wagner_liste',
+          label: 'is_relevant_for'
+        }
+      ];
+
+    case 8: // Q9 - Kundenwissen
+      return [
+        ...baseElements,
+        {
+          type: 'class',
+          nodeType: 'class',
+          name: 'Kundenbesonderheit',
+          label: 'Kundenbesonderheit',
+          parent: 'herr_wagner',
+          id: 'kundenbesonderheit'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'audi_ingolstadt',
+          label: 'Audi Ingolstadt'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'halle4_vibration',
+          label: 'Halle 4 Vibration'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'dr_weber',
+          label: 'Dr. Weber (Werksleiter)'
+        },
+        {
+          type: 'edge',
+          from: 'audi_ingolstadt',
+          to: 'kunde',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'halle4_vibration',
+          to: 'kundenbesonderheit',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'audi_ingolstadt',
+          to: 'halle4_vibration',
+          label: 'hat_besonderheit',
+          attributes: { lösung: 'Dämpfungsplatten' }
+        },
+        {
+          type: 'edge',
+          from: 'audi_ingolstadt',
+          to: 'dr_weber',
+          label: 'hat_ansprechpartner',
+          attributes: { position: 'Werksleiter' }
+        },
+        {
+          type: 'edge',
+          from: `q_${qa.id}`,
+          to: 'audi_ingolstadt',
+          label: 'is_relevant_for'
+        },
+        {
+          type: 'edge',
+          from: `a_${qa.id}`,
+          to: 'kundenbesonderheit',
+          label: 'is_relevant_for'
+        }
+      ];
+
+    case 9: // Q10 - Notfall-Hacks
+      return [
+        ...baseElements,
+        {
+          type: 'class',
+          nodeType: 'class',
+          name: 'Notfallmaßnahme',
+          label: 'Notfallmaßnahme',
+          parent: 'herr_wagner',
+          id: 'notfallmassnahme'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'notfall_ueberbrueckung',
+          label: 'Notfall-Überbrückung'
+        },
+        {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'wachmann',
+          label: 'Wachmann'
+        },
+        {
+          type: 'edge',
+          from: 'notfall_ueberbrueckung',
+          to: 'notfallmassnahme',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'notfall_ueberbrueckung',
+          to: 'wachmann',
+          label: 'sicherheitshinweis',
+          attributes: { grund: 'Not-Aus überbrückt', dokumentation: 'zwingend' }
+        },
+        {
+          type: 'edge',
+          from: `q_${qa.id}`,
+          to: 'notfallmassnahme',
+          label: 'is_relevant_for'
+        },
+        {
+          type: 'edge',
+          from: `a_${qa.id}`,
+          to: 'notfall_ueberbrueckung',
           label: 'is_relevant_for'
         }
       ];

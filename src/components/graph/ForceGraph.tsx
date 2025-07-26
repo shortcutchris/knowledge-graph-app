@@ -155,19 +155,19 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
       }).strength(0.8))
       .force("charge", d3.forceManyBody().strength(d => {
         if (d.nodeType === 'question' || d.nodeType === 'answer') return -150;
-        if (d.id === 'entity') return -500;
+        if (d.id === 'herr_wagner') return -600;
         return -300;
       }))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collision", d3.forceCollide().radius(d => {
         if (d.nodeType === 'question' || d.nodeType === 'answer') return 50;
-        if (d.id === 'entity') return 80;
+        if (d.id === 'herr_wagner') return 90;
         return 70;
       }))
       .force("y", d3.forceY().strength(0.08).y(d => {
-        if (d.id === 'entity') return height * 0.2;
-        if (d.id === 'anlage' || d.id === 'kunde' || d.id === 'fehler') return height * 0.4;
-        if (d.parent === 'anlage' || d.parent === 'kunde' || d.parent === 'fehler') return height * 0.6;
+        if (d.id === 'herr_wagner') return height * 0.3;
+        if (d.id === 'anlage' || d.id === 'kunde' || d.id === 'fehler') return height * 0.5;
+        if (d.parent === 'anlage' || d.parent === 'kunde' || d.parent === 'fehler') return height * 0.7;
         return height * 0.5;
       }))
       .alpha(1)
@@ -362,10 +362,10 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
         nodeGroup.append("text")
           .attr("text-anchor", "middle")
           .attr("dominant-baseline", "middle")
-          .attr("font-size", "20px")
+          .attr("font-size", "18px")
           .attr("fill", "#7b1fa2")
           .attr("pointer-events", "none")
-          .text("?");
+          .text(d.label || "?");
       } else if (d.nodeType === 'answer') {
         nodeGroup.append("circle")
           .attr("r", 30)
@@ -378,10 +378,35 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
         nodeGroup.append("text")
           .attr("text-anchor", "middle")
           .attr("dominant-baseline", "middle")
-          .attr("font-size", "20px")
+          .attr("font-size", "18px")
           .attr("fill", "#388e3c")
           .attr("pointer-events", "none")
-          .text("A");
+          .text(d.label || "A");
+      } else if (d.nodeType === 'person') {
+        // Special styling for Herr Wagner
+        nodeGroup.append("circle")
+          .attr("r", 45)
+          .attr("fill", "#e3f2fd")
+          .attr("stroke", "#1976d2")
+          .attr("stroke-width", 3)
+          .attr("class", "node-shape");
+        
+        // Add person icon
+        nodeGroup.append("text")
+          .attr("text-anchor", "middle")
+          .attr("y", -5)
+          .attr("font-size", "24px")
+          .attr("pointer-events", "none")
+          .text("👨‍🔧");
+          
+        nodeGroup.append("text")
+          .attr("text-anchor", "middle")
+          .attr("y", 20)
+          .attr("font-size", "14px")
+          .attr("font-weight", "bold")
+          .attr("fill", "#1976d2")
+          .attr("pointer-events", "none")
+          .text(d.label);
       } else {
         nodeGroup.append("rect")
           .attr("width", d.id === 'entity' ? 140 : 120)
@@ -545,6 +570,7 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
             // Return to original stroke color
             if (d.nodeType === 'question') return d.isProposed ? '#9c27b0' : '#7b1fa2';
             if (d.nodeType === 'answer') return d.isProposed ? '#4caf50' : '#388e3c';
+            if (d.nodeType === 'person') return '#1976d2';
             if (d.isProposed) return '#ffc107';
             if (d.isNew) return '#28a745';
             if (d.id === 'entity') return '#5c6bc0';
