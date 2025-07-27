@@ -33,11 +33,11 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
       
       {/* Modal */}
       <div className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none">
-        <div className={`bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden pointer-events-auto transition-all duration-300 border border-gray-200 ${
+        <div className={`bg-white rounded-xl shadow-2xl max-w-4xl w-full h-[85vh] flex flex-col pointer-events-auto transition-all duration-300 border border-gray-200 ${
           isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100 animate-in zoom-in-95 slide-in-from-bottom-4'
         }`}>
           {/* Header */}
-          <div className="bg-gray-900 p-6 text-white relative">
+          <div className="bg-[#000e22] p-6 text-white relative flex-shrink-0">
             <button
               onClick={handleClose}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
@@ -54,7 +54,7 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
           </div>
 
           {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
+          <div className="p-6 overflow-y-auto flex-1">
             {/* Scenario */}
             <div className="mb-6 p-5 bg-gray-50 border border-gray-300 rounded-lg">
               <div className="flex items-start gap-5">
@@ -237,7 +237,7 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
           </div>
 
           {/* Footer */}
-          <div className="border-t border-gray-200 p-6 bg-gray-50">
+          <div className="border-t border-gray-200 p-6 bg-gray-50 flex-shrink-0">
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
                 Diese Demo zeigt, wie KI dabei hilft, wertvolles Expertenwissen zu bewahren.
@@ -245,7 +245,7 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
               <Button
                 onClick={handleClose}
                 size="lg"
-                className="bg-gray-900 hover:bg-gray-800 text-white gap-2"
+                className="bg-[#ffaa3a] hover:bg-[#ff9922] text-white gap-2 shadow-lg hover:shadow-xl transition-all"
               >
                 <FileText className="h-5 w-5" />
                 Demo starten

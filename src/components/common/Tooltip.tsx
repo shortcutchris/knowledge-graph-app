@@ -14,7 +14,7 @@ export const Tooltip: React.FC<TooltipProps> = ({ x, y, content, visible }) => {
   return (
     <div 
       className={cn(
-        "absolute bg-gray-900 text-white px-3 py-2 rounded-md text-xs pointer-events-none z-[1000] max-w-[300px] shadow-lg transition-opacity duration-200",
+        "absolute bg-[#00afef] text-white px-3 py-2 rounded-md text-xs pointer-events-none z-[1000] max-w-[300px] shadow-lg transition-opacity duration-200",
         visible ? "opacity-100" : "opacity-0"
       )}
       style={{

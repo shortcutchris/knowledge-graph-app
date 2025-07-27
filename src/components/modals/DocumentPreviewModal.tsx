@@ -62,11 +62,11 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({ isOp
       
       {/* Modal */}
       <div className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none">
-        <div className={`bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden pointer-events-auto transition-all duration-300 ${
+        <div className={`bg-white rounded-xl shadow-2xl max-w-4xl w-full h-[85vh] flex flex-col pointer-events-auto transition-all duration-300 ${
           isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100 animate-in zoom-in-95'
         }`}>
           {/* Header */}
-          <div className="bg-gray-900 p-4 text-white flex items-center justify-between">
+          <div className="bg-[#000e22] p-4 text-white flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-3">
               <FileText className="h-6 w-6" />
               <div>
@@ -83,7 +83,7 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({ isOp
           </div>
 
           {/* Document Content */}
-          <div className="p-6 bg-gray-50 overflow-y-auto" style={{ maxHeight: 'calc(90vh - 180px)' }}>
+          <div className="p-6 bg-gray-50 overflow-y-auto flex-1">
             <Card className="mx-auto max-w-3xl bg-white shadow-lg" style={{ 
               background: 'linear-gradient(to bottom, #ffffff 0%, #fafafa 100%)',
               fontFamily: 'monospace'
@@ -200,7 +200,7 @@ export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({ isOp
           </div>
 
           {/* Footer with Navigation */}
-          <div className="border-t border-gray-200 p-4 bg-white flex items-center justify-between">
+          <div className="border-t border-gray-200 p-4 bg-white flex items-center justify-between flex-shrink-0">
             <div className="flex items-center gap-2">
               <Button
                 onClick={prevPage}

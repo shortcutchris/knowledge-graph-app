@@ -71,7 +71,7 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ node, isOpen, onClose,
           <>
             <DialogHeader className="flex-shrink-0">
               <div 
-                className="flex items-center gap-3 p-4 -mx-6 -mt-6 bg-gray-900"
+                className="flex items-center gap-3 p-4 -mx-6 -mt-6 bg-[#000e22]"
               >
                 <div className="text-white">
                   {typeInfo.icon}

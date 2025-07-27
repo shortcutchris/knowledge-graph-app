@@ -74,7 +74,7 @@ export const FullscreenGraph: React.FC<FullscreenGraphProps> = ({
       isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100 animate-in fade-in zoom-in-95'
     }`}>
       {/* Header */}
-      <div className="bg-gray-900 h-16 min-h-[64px] flex items-center justify-between px-5 border-b border-gray-300">
+      <div className="bg-[#000e22] h-16 min-h-[64px] flex items-center justify-between px-5 border-b border-gray-300">
         <h2 className="text-xl font-semibold text-white flex items-center gap-4">
           Wissensgraph - Vollbildansicht
           <div className="flex items-center gap-2">

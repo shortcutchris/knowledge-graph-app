@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { AlertCircle, Brain, CheckCircle, HelpCircle, MessageSquare, Plus, Check, X, Play, ArrowRight, Eye } from 'lucide-react';
+import { AlertCircle, Brain, CheckCircle, HelpCircle, MessageSquare, Plus, Check, X, Play, ArrowRight, Eye, Edit } from 'lucide-react';
 import type { QA } from '../../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { DocumentPreviewModal } from '../modals/DocumentPreviewModal';
+import { EditQAModal } from '../modals/EditQAModal';
 
 interface QAExtractionPanelProps {
   processStep: string;
@@ -16,6 +17,7 @@ interface QAExtractionPanelProps {
   onSkipMapping: () => void;
   onReset?: () => void;
   onShowCompletionModal?: () => void;
+  onUpdateQA?: (index: number, updatedQA: { question: string; answer: string }) => void;
 }
 
 export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
@@ -25,11 +27,25 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
   onConfirmMapping,
   onSkipMapping,
   onReset,
-  onShowCompletionModal
+  onShowCompletionModal,
+  onUpdateQA
 }) => {
   const [isButtonClicked, setIsButtonClicked] = React.useState(false);
   const [showDocumentPreview, setShowDocumentPreview] = useState(false);
   const [previewPage, setPreviewPage] = useState<number | undefined>(undefined);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [isReExtracting, setIsReExtracting] = useState(false);
+  
+  const handleSaveEdit = (updatedQA: { question: string; answer: string }) => {
+    setIsReExtracting(true);
+    // Simulate re-extraction with loading state
+    setTimeout(() => {
+      if (onUpdateQA) {
+        onUpdateQA(currentQAIndex, updatedQA);
+      }
+      setIsReExtracting(false);
+    }, 1500);
+  };
   
   // Reset button state when processStep changes back to upload
   React.useEffect(() => {
@@ -84,7 +100,7 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
         >
           <div className="relative">
             {/* Core element - same as animation but static */}
-            <div className="relative bg-gradient-to-br from-blue-500 to-blue-600 rounded-full p-8 shadow-2xl group-hover:shadow-3xl transition-shadow duration-300">
+            <div className="relative bg-gradient-to-br from-[#ffaa3a] to-[#ff8822] rounded-full p-8 shadow-2xl group-hover:shadow-3xl group-hover:shadow-orange-500/50 transition-all duration-300">
               <Brain size={48} className="text-white" />
             </div>
           </div>
@@ -111,20 +127,20 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
       <div className="flex flex-col items-center justify-center h-full">
         <div className="relative animate-fadeIn">
           {/* Outer ring */}
-          <div className="absolute inset-0 rounded-full border-4 border-blue-200 animate-ping"></div>
-          <div className="absolute inset-0 rounded-full border-4 border-blue-300 animate-ping animation-delay-200"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-orange-200 animate-ping"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-orange-300 animate-ping animation-delay-200"></div>
           
           {/* Core animation */}
-          <div className="relative bg-gradient-to-br from-blue-500 to-blue-600 rounded-full p-8 shadow-2xl">
+          <div className="relative bg-gradient-to-br from-[#ffaa3a] to-[#ff8822] rounded-full p-8 shadow-2xl">
             <Brain size={48} className="text-white animate-pulse" />
           </div>
           
           {/* Rotating dots */}
           <div className="absolute inset-0 animate-spin-slow">
-            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-400 rounded-full"></div>
-            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-400 rounded-full"></div>
-            <div className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-blue-400 rounded-full"></div>
-            <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-blue-400 rounded-full"></div>
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-400 rounded-full"></div>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-orange-400 rounded-full"></div>
+            <div className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-orange-400 rounded-full"></div>
+            <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-orange-400 rounded-full"></div>
           </div>
         </div>
         
@@ -210,7 +226,7 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
             <Button
               onClick={onConfirmMapping}
               size="sm"
-              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+              className="flex-1 bg-[#ffaa3a] hover:bg-[#ff9922] text-white shadow-md hover:shadow-lg transition-all"
             >
               <ArrowRight className="h-4 w-4 mr-1" />
               Übernehmen
@@ -221,6 +237,21 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
         {/* Scrollable content area */}
         {processStep === 'map' && (
           <div className="flex-1 overflow-y-auto pt-4 space-y-4 pr-2">
+            {isReExtracting && (
+              <div className="absolute inset-0 bg-white/80 backdrop-blur-sm z-10 flex items-center justify-center">
+                <div className="text-center">
+                  <div className="relative animate-fadeIn">
+                    <div className="absolute inset-0 rounded-full border-4 border-orange-200 animate-ping"></div>
+                    <div className="relative bg-gradient-to-br from-[#ffaa3a] to-[#ff8822] rounded-full p-6 shadow-2xl">
+                      <Brain size={32} className="text-white animate-pulse" />
+                    </div>
+                  </div>
+                  <p className="mt-4 text-gray-700 font-medium">Analysiere geänderten Text...</p>
+                  <p className="text-sm text-gray-500">Extrahiere neue Entitäten</p>
+                </div>
+              </div>
+            )}
+            
             <Card className="bg-blue-50 border-blue-200">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between text-lg text-blue-900">
@@ -228,25 +259,37 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                     <HelpCircle size={20} />
                     Extrahierte Q&A
                   </div>
-                  <button
-                    className="h-6 px-2 text-xs font-normal border border-gray-300 rounded-md bg-white hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 flex items-center"
-                    onClick={() => {
-                      const pageNumber = currentQAIndex === 0 ? 156 : 
-                                       currentQAIndex === 1 ? 203 :
-                                       currentQAIndex === 2 ? 378 :
-                                       currentQAIndex === 3 ? 512 :
-                                       currentQAIndex === 4 ? 689 : 0;
-                      setPreviewPage(pageNumber);
-                      setShowDocumentPreview(true);
-                    }}
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    Seite {currentQAIndex === 0 ? '156' : 
-                           currentQAIndex === 1 ? '203' :
-                           currentQAIndex === 2 ? '378' :
-                           currentQAIndex === 3 ? '512' :
-                           currentQAIndex === 4 ? '689' : '0'}
-                  </button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-6 px-2 text-xs"
+                      onClick={() => setShowEditModal(true)}
+                      disabled={isReExtracting}
+                    >
+                      <Edit className="h-3 w-3 mr-1" />
+                      Bearbeiten
+                    </Button>
+                    <button
+                      className="h-6 px-2 text-xs font-normal border border-[#00afef] rounded-md bg-white hover:bg-[#00afef] hover:text-white transition-all duration-200 flex items-center"
+                      onClick={() => {
+                        const pageNumber = currentQAIndex === 0 ? 156 : 
+                                         currentQAIndex === 1 ? 203 :
+                                         currentQAIndex === 2 ? 378 :
+                                         currentQAIndex === 3 ? 512 :
+                                         currentQAIndex === 4 ? 689 : 0;
+                        setPreviewPage(pageNumber);
+                        setShowDocumentPreview(true);
+                      }}
+                    >
+                      <Eye className="h-3 w-3 mr-1" />
+                      Seite {currentQAIndex === 0 ? '156' : 
+                             currentQAIndex === 1 ? '203' :
+                             currentQAIndex === 2 ? '378' :
+                             currentQAIndex === 3 ? '512' :
+                             currentQAIndex === 4 ? '689' : '0'}
+                    </button>
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -311,16 +354,29 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                       }`}>
                         <div className="flex items-center justify-between">
                           <span className="text-sm font-medium">{entity.text}</span>
-                          {entity.isNew && <Badge className="bg-green-500 text-white hover:bg-green-600">NEU</Badge>}
+                          {entity.isNew && <Badge className="bg-[#ffaa3a] text-white hover:bg-[#ff9922]">NEU</Badge>}
                         </div>
                         {entity.attributes && (
                           <div className="mt-1 text-xs text-gray-600">
                             {Object.entries(entity.attributes).map(([key, value]) => (
-                              <span key={key} className="inline-block mr-3">
-                                {key === 'seite' && '📄 '}
-                                {key === 'telefon' && '📞 '}
-                                {key}: {value}
-                              </span>
+                              key === 'seite' ? (
+                                <button
+                                  key={key}
+                                  className="inline-flex items-center mr-3 text-[#00afef] hover:text-[#0099dd] hover:underline transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setPreviewPage(parseInt(value as string));
+                                    setShowDocumentPreview(true);
+                                  }}
+                                >
+                                  📄 Seite: {value}
+                                </button>
+                              ) : (
+                                <span key={key} className="inline-block mr-3">
+                                  {key === 'telefon' && '📞 '}
+                                  {key}: {value}
+                                </span>
+                              )
                             ))}
                           </div>
                         )}
@@ -346,7 +402,7 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                             </span>
                           )}
                         </div>
-                        {predicate.isNew && <Badge className="bg-green-500 text-white hover:bg-green-600">NEU</Badge>}
+                        {predicate.isNew && <Badge className="bg-[#ffaa3a] text-white hover:bg-[#ff9922]">NEU</Badge>}
                       </div>
                     ))}
                   </div>
@@ -435,6 +491,14 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
         }}
         initialPage={previewPage}
       />
+      {currentQAIndex < extractedQAs.length && (
+        <EditQAModal
+          isOpen={showEditModal}
+          onClose={() => setShowEditModal(false)}
+          qa={extractedQAs[currentQAIndex]}
+          onSave={handleSaveEdit}
+        />
+      )}
     </>
     );
   }

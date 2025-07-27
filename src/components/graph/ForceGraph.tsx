@@ -379,8 +379,8 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
       if (d.nodeType === 'question') {
         nodeGroup.append("circle")
           .attr("r", 30)
-          .attr("fill", d.isProposed ? "#f3e5f5" : "#e1bee7")
-          .attr("stroke", d.isProposed ? "#9c27b0" : "#7b1fa2")
+          .attr("fill", d.isProposed ? "#e3f9ff" : "#cff4fc")
+          .attr("stroke", d.isProposed ? "#00afef" : "#0099dd")
           .attr("stroke-width", d.isProposed ? 3 : 2)
           .attr("stroke-dasharray", d.isProposed ? "5,5" : "none")
           .attr("class", "node-shape");
@@ -389,7 +389,7 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
           .attr("text-anchor", "middle")
           .attr("dominant-baseline", "middle")
           .attr("font-size", "18px")
-          .attr("fill", "#7b1fa2")
+          .attr("fill", "#0099dd")
           .attr("pointer-events", "none")
           .text(d.label || "?");
       } else if (d.nodeType === 'answer') {
@@ -410,7 +410,14 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
           .text(d.label || "A");
       } else if (d.nodeType === 'person') {
         // Special styling for Herr Wagner
-        // Outer circle (border)
+        // Outer circle (border) with orange highlight
+        nodeGroup.append("circle")
+          .attr("r", 48)
+          .attr("fill", "none")
+          .attr("stroke", "#ffaa3a")
+          .attr("stroke-width", 4)
+          .attr("opacity", 0.8);
+        
         nodeGroup.append("circle")
           .attr("r", 45)
           .attr("fill", "white")

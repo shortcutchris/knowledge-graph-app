@@ -4,6 +4,7 @@ import type { Node, Link, ProposedElement, GraphDimensions } from '../types';
 import { sampleQAs, wissenStatistiken } from '../data/sampleData';
 import { enhancedOntologyNodes, enhancedOntologyLinks } from '../data/enhancedOntology';
 import { generateProposedElements } from '../utils/proposedElements';
+import { generateReExtractedElements } from '../utils/reExtractElements';
 import { DocumentUploadPanel } from './panels/DocumentUploadPanel';
 import { QAExtractionPanel } from './panels/QAExtractionPanel';
 import { ForceGraph } from './graph/ForceGraph';
@@ -147,6 +148,25 @@ export const KnowledgeGraphBuilder: React.FC = () => {
     }
   };
 
+  const handleUpdateQA = (index: number, updatedQA: { question: string; answer: string }) => {
+    // Update the Q&A in the array
+    const updatedQAs = [...extractedQAs];
+    updatedQAs[index] = {
+      ...updatedQAs[index],
+      question: updatedQA.question,
+      answer: updatedQA.answer
+    };
+    setExtractedQAs(updatedQAs);
+    
+    // Generate new proposed elements based on updated text
+    const newProposedElements = generateReExtractedElements(
+      updatedQA,
+      index,
+      updatedQAs[index].id
+    );
+    setProposedElements(newProposedElements);
+  };
+
   const resetDemo = () => {
     setUploadedDoc(null);
     setExtractedQAs([]);
@@ -210,7 +230,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
       {/* Left Panel - Document Import (Collapsible) */}
       <div className={`${isLeftPanelCollapsed ? 'w-12' : 'w-1/4'} bg-white border-r border-gray-300 flex flex-col transition-all duration-300 relative`}>
         {isLeftPanelCollapsed ? (
-          <div className="bg-gray-900 h-full flex items-center justify-center">
+          <div className="bg-[#000e22] h-full flex items-center justify-center">
             <Button
               onClick={() => setIsLeftPanelCollapsed(false)}
               variant="ghost"
@@ -223,7 +243,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="bg-gray-900 h-16 min-h-[64px] flex items-center px-5 border-b border-gray-300">
+            <div className="bg-[#000e22] h-16 min-h-[64px] flex items-center px-5 border-b border-gray-300">
               <div className="flex items-center justify-between w-full">
                 <h2 className="flex items-center gap-2 text-xl font-semibold text-white">
                   <FileText className="h-6 w-6 text-white" />
@@ -255,7 +275,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
 
       {/* Middle Panel - Q&A Extraction & Mapping */}
       <div className={`${isLeftPanelCollapsed ? 'w-[40%]' : 'w-[35%]'} bg-white border-r border-gray-300 flex flex-col transition-all duration-300`}>
-        <div className="bg-gray-900 h-16 min-h-[64px] flex items-center px-5 border-b border-gray-300">
+        <div className="bg-[#000e22] h-16 min-h-[64px] flex items-center px-5 border-b border-gray-300">
           <div className="flex items-center justify-between w-full">
             <h2 className="flex items-center gap-2 text-xl font-semibold text-white">
               <Brain className="h-6 w-6 text-white" />
@@ -273,13 +293,14 @@ export const KnowledgeGraphBuilder: React.FC = () => {
             onSkipMapping={handleSkipMapping}
             onReset={resetDemo}
             onShowCompletionModal={() => setShowCompletionModal(true)}
+            onUpdateQA={handleUpdateQA}
           />
         </div>
       </div>
 
       {/* Right Panel - Ontology Graph */}
       <div id="graph-container" className={`${isLeftPanelCollapsed ? 'flex-1' : 'w-[40%]'} bg-gray-50 flex flex-col transition-all duration-300`}>
-        <div className="bg-gray-900 h-16 min-h-[64px] flex items-center px-5 border-b border-gray-300">
+        <div className="bg-[#000e22] h-16 min-h-[64px] flex items-center px-5 border-b border-gray-300">
           <div className="flex items-center justify-between w-full">
             <h2 className="flex items-center gap-2 text-xl font-semibold text-white">Wissensgraph</h2>
             <div className="flex items-center gap-4">
