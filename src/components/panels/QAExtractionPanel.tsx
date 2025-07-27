@@ -199,9 +199,18 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
           <div className="flex-1 overflow-y-auto pt-4 space-y-4 pr-2">
             <Card className="bg-blue-50 border-blue-200">
               <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg text-blue-900">
-                  <HelpCircle size={20} />
-                  Extrahierte Q&A
+                <CardTitle className="flex items-center justify-between text-lg text-blue-900">
+                  <div className="flex items-center gap-2">
+                    <HelpCircle size={20} />
+                    Extrahierte Q&A
+                  </div>
+                  <Badge variant="outline" className="text-xs font-normal">
+                    📄 Seite {currentQAIndex === 0 ? '156' : 
+                               currentQAIndex === 1 ? '203' :
+                               currentQAIndex === 2 ? '378' :
+                               currentQAIndex === 3 ? '512' :
+                               currentQAIndex === 4 ? '689' : '0'}
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -259,13 +268,26 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                   <h5 className="text-sm font-semibold text-gray-600 mb-2">Entitäten:</h5>
                   <div className="space-y-2">
                     {extractedQAs[currentQAIndex].entities.map((entity, idx) => (
-                      <div key={idx} className={`flex items-center justify-between p-2 rounded border ${
+                      <div key={idx} className={`p-2 rounded border ${
                         entity.isNew 
                           ? 'bg-yellow-50 border-yellow-300' 
                           : 'bg-blue-50 border-blue-300'
                       }`}>
-                        <span className="text-sm font-medium">{entity.text}</span>
-                        {entity.isNew && <Badge className="bg-green-500 text-white hover:bg-green-600">NEU</Badge>}
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium">{entity.text}</span>
+                          {entity.isNew && <Badge className="bg-green-500 text-white hover:bg-green-600">NEU</Badge>}
+                        </div>
+                        {entity.attributes && (
+                          <div className="mt-1 text-xs text-gray-600">
+                            {Object.entries(entity.attributes).map(([key, value]) => (
+                              <span key={key} className="inline-block mr-3">
+                                {key === 'seite' && '📄 '}
+                                {key === 'telefon' && '📞 '}
+                                {key}: {value}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>

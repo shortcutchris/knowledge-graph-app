@@ -19,6 +19,8 @@ export interface Node {
   fileName?: string;
   pageCount?: number;
   extractionDate?: string;
+  // Entity attributes
+  attributes?: Record<string, string>;
 }
 
 export interface Link {
@@ -84,6 +86,7 @@ export interface Entity {
   type: string;
   mapTo: string | null;
   isNew: boolean;
+  attributes?: Record<string, string>;
 }
 
 export interface Predicate {

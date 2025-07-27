@@ -103,7 +103,8 @@ export const KnowledgeGraphBuilder: React.FC = () => {
           id: nodeId,
           label: element.label!,
           isNew: true,
-          isProposed: false
+          isProposed: false,
+          attributes: element.attributes
         } as Node);
         
         if (element.type === 'class' && element.parent) {

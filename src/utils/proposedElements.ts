@@ -66,7 +66,12 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           type: 'instance',
           nodeType: 'instance',
           id: 'bmw_muenchen',
-          label: 'BMW München'
+          label: 'BMW München',
+          attributes: {
+            standort: 'München',
+            anlage: 'X500 (Baujahr 2011)',
+            seite: '156'
+          }
         },
         {
           type: 'instance',
@@ -78,13 +83,25 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           type: 'instance',
           nodeType: 'instance',
           id: 'kondensator_c3',
-          label: 'Kondensator C3'
+          label: 'Kondensator C3',
+          attributes: {
+            teilnummer: '4711',
+            warnung: 'NICHT 4712 verwenden!',
+            lebensdauer: '8-10 Jahre',
+            seite: '156'
+          }
         },
         {
           type: 'instance',
           nodeType: 'instance',
           id: 'hr_maier',
-          label: 'Hr. Maier'
+          label: 'Hr. Maier',
+          attributes: {
+            telefon: '0821-445566',
+            firma: 'Hydrotech Augsburg',
+            rolle: 'Ansprechpartner vor Ort',
+            seite: '156'
+          }
         },
         {
           type: 'edge',
@@ -240,7 +257,14 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           type: 'instance',
           nodeType: 'instance',
           id: 'meister_huber',
-          label: 'Meister Huber'
+          label: 'Meister Huber',
+          attributes: {
+            telefon: '0171-2345678',
+            rolle: 'Werksmeister',
+            schicht: 'Mo-Fr 6-14 Uhr',
+            hinweis: 'Kennt alle Eigenheiten der Anlage',
+            seite: '378'
+          }
         },
         {
           type: 'edge',
@@ -289,7 +313,13 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           type: 'instance',
           nodeType: 'instance',
           id: 'schuetz_k4',
-          label: 'Schütz K4 (8834)'
+          label: 'Schütz K4 (8834)',
+          attributes: {
+            artikelnummer: '8834',
+            inkompatibilität: 'Andere Befestigungslöcher',
+            baujahr_grenze: 'vor 2018',
+            seite: '512'
+          }
         },
         {
           type: 'instance',
@@ -345,7 +375,13 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           type: 'instance',
           nodeType: 'instance',
           id: 'daimler_stuttgart',
-          label: 'Daimler Stuttgart'
+          label: 'Daimler Stuttgart',
+          attributes: {
+            standort: 'Stuttgart',
+            produktionslinie: '3',
+            umgebung: 'Lackiererei nebenan',
+            seite: '689'
+          }
         },
         {
           type: 'instance',
