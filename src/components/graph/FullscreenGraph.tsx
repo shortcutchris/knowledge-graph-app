@@ -50,24 +50,23 @@ export const FullscreenGraph: React.FC<FullscreenGraphProps> = ({
   return (
     <div className="fixed inset-0 bg-gray-100 z-[1000] flex flex-col animate-in fade-in duration-300">
       {/* Header */}
-      <div className="h-[60px] bg-white border-b flex items-center justify-between px-5 shadow-sm">
-        <h2 className="text-xl font-semibold text-gray-900 flex items-center gap-4">
+      <div className="bg-gray-900 h-16 min-h-[64px] flex items-center justify-between px-5 border-b border-gray-300">
+        <h2 className="text-xl font-semibold text-white flex items-center gap-4">
           Wissensgraph - Vollbildansicht
           <div className="flex items-center gap-2">
-            <Badge variant="secondary">{nodes.length} Knoten</Badge>
-            <Badge variant="secondary">{links.length} Verbindungen</Badge>
+            <Badge className="bg-gray-700 text-gray-100 hover:bg-gray-600">{nodes.length} Knoten</Badge>
+            <Badge className="bg-gray-700 text-gray-100 hover:bg-gray-600">{links.length} Verbindungen</Badge>
           </div>
         </h2>
         <div className="flex items-center gap-6">
-          <span className="text-sm text-gray-600 flex items-center gap-1">
+          <span className="text-sm text-gray-400 flex items-center gap-1">
             <Move className="h-4 w-4" />
             Ziehen zum Bewegen • Scrollen zum Zoomen • Klick für Details • ESC zum Verlassen
           </span>
           <Button
             onClick={onClose}
-            variant="secondary"
             size="sm"
-            className="gap-2"
+            className="gap-2 bg-white text-gray-900 hover:bg-gray-100"
           >
             <Minimize2 className="h-4 w-4" />
             Vollbild verlassen
@@ -86,7 +85,7 @@ export const FullscreenGraph: React.FC<FullscreenGraphProps> = ({
             links={links}
             proposedElements={proposedElements}
             width={isSidePanelOpen ? dimensions.width - 440 : dimensions.width - 40}
-            height={dimensions.height - 100}
+            height={dimensions.height - 104}
             onNodeClick={useCallback((node) => {
               setSelectedNode(node);
               setIsSidePanelOpen(!!node);
