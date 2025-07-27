@@ -3,6 +3,7 @@ import { X, FileText, Calendar, UserCheck, Building, AlertCircle, TrendingDown, 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import expertWagnerImage from '../../assets/images/expert_herr_wagner.png';
+import cdbLogo from '../../assets/images/cdb_logo.png';
 
 interface UseCaseModalProps {
   isOpen: boolean;
@@ -45,12 +46,21 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
               <X className="h-5 w-5" />
             </button>
             
-            <h1 className="text-3xl font-bold mb-2">
-              Corporate Digital Brain - Knowledge Builder
-            </h1>
-            <p className="text-gray-300 text-lg">
-              30 Jahre Expertenwissen digitalisieren - bevor es zu spät ist
-            </p>
+            <div className="flex items-center gap-4">
+              <img 
+                src={cdbLogo} 
+                alt="Corporate Digital Brain" 
+                className="h-12 w-12 object-contain"
+              />
+              <div>
+                <h1 className="text-3xl font-bold mb-2">
+                  Corporate Digital Brain - Knowledge Builder
+                </h1>
+                <p className="text-gray-300 text-lg">
+                  30 Jahre Expertenwissen digitalisieren - bevor es zu spät ist
+                </p>
+              </div>
+            </div>
           </div>
 
           {/* Content */}

@@ -15,6 +15,7 @@ import { UseCaseModal } from './modals/UseCaseModal';
 import { CompletionModal } from './modals/CompletionModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import cdbLogo from '../assets/images/cdb_logo.png';
 
 export const KnowledgeGraphBuilder: React.FC = () => {
   const [uploadedDoc, setUploadedDoc] = useState<{ name: string; size: string } | null>(null);
@@ -311,9 +312,16 @@ export const KnowledgeGraphBuilder: React.FC = () => {
                 onClick={() => setIsFullscreen(true)}
                 size="sm"
                 variant="secondary"
-                className="gap-2 bg-white text-gray-900 hover:bg-gray-100"
+                className="gap-2 bg-white text-gray-900 hover:bg-gray-100 group"
               >
-                <Maximize2 className="h-4 w-4" />
+                <div className="relative w-4 h-4">
+                  <Maximize2 className="h-4 w-4 transition-all group-hover:opacity-0" />
+                  <img 
+                    src={cdbLogo} 
+                    alt="CDB" 
+                    className="absolute inset-0 w-4 h-4 object-contain opacity-0 transition-all group-hover:opacity-100"
+                  />
+                </div>
                 Vollbild
               </Button>
             </div>
