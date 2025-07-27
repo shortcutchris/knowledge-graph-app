@@ -434,11 +434,12 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
           .attr("pointer-events", "none")
           .text(d.label);
       } else if (d.nodeType === 'document') {
-        // Document nodes
+        // Document nodes - make wider for long names
+        const docWidth = 140; // Increased from 100
         nodeGroup.append("rect")
-          .attr("x", -50)
+          .attr("x", -docWidth/2)
           .attr("y", -30)
-          .attr("width", 100)
+          .attr("width", docWidth)
           .attr("height", 60)
           .attr("rx", 6)
           .attr("fill", "#fff3cd")
@@ -454,20 +455,59 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
           .attr("pointer-events", "none")
           .text("📄");
           
+        // Split document name into multiple lines
+        const fileName = d.label;
+        const parts = fileName.split('_');
+        let line1 = '';
+        let line2 = '';
+        
+        // Split intelligently: "Wagner_Wartungsberichte" on first line, rest on second
+        if (parts.length >= 3 && parts[0] === 'Wagner' && parts[1] === 'Wartungsberichte') {
+          line1 = parts.slice(0, 2).join('_');
+          line2 = parts.slice(2).join('_');
+        } else {
+          // Fallback: split at underscore or at 20 chars
+          if (fileName.length > 20) {
+            const splitIndex = fileName.lastIndexOf('_', 20);
+            if (splitIndex > 0) {
+              line1 = fileName.substring(0, splitIndex);
+              line2 = fileName.substring(splitIndex + 1);
+            } else {
+              line1 = fileName.substring(0, 20);
+              line2 = fileName.substring(20);
+            }
+          } else {
+            line1 = fileName;
+          }
+        }
+        
+        // First line
         nodeGroup.append("text")
           .attr("text-anchor", "middle")
-          .attr("y", 20)
-          .attr("font-size", "12px")
+          .attr("y", 15)
+          .attr("font-size", "11px")
           .attr("fill", "#856404")
           .attr("font-weight", "bold")
           .attr("pointer-events", "none")
-          .text(d.label);
+          .text(line1);
+          
+        // Second line if exists
+        if (line2) {
+          nodeGroup.append("text")
+            .attr("text-anchor", "middle")
+            .attr("y", 28)
+            .attr("font-size", "11px")
+            .attr("fill", "#856404")
+            .attr("font-weight", "bold")
+            .attr("pointer-events", "none")
+            .text(line2);
+        }
         
         // Add file size below
         if (d.fileSize) {
           nodeGroup.append("text")
             .attr("text-anchor", "middle")
-            .attr("y", 35)
+            .attr("y", line2 ? 42 : 35) // Adjust position based on lines
             .attr("font-size", "10px")
             .attr("fill", "#856404")
             .attr("pointer-events", "none")

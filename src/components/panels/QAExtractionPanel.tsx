@@ -1,11 +1,12 @@
-import React from 'react';
-import { AlertCircle, Brain, CheckCircle, HelpCircle, MessageSquare, Plus, Check, X, Play, ArrowRight } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertCircle, Brain, CheckCircle, HelpCircle, MessageSquare, Plus, Check, X, Play, ArrowRight, Eye } from 'lucide-react';
 import type { QA } from '../../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { DocumentPreviewModal } from '../modals/DocumentPreviewModal';
 
 interface QAExtractionPanelProps {
   processStep: string;
@@ -27,6 +28,8 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
   onShowCompletionModal
 }) => {
   const [isButtonClicked, setIsButtonClicked] = React.useState(false);
+  const [showDocumentPreview, setShowDocumentPreview] = useState(false);
+  const [previewPage, setPreviewPage] = useState<number | undefined>(undefined);
   
   // Reset button state when processStep changes back to upload
   React.useEffect(() => {
@@ -71,7 +74,8 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
 
   if (processStep === 'upload') {
     return (
-      <div className="flex flex-col items-center justify-center h-full">
+      <>
+        <div className="flex flex-col items-center justify-center h-full">
         <button
           onClick={handleStartExtraction}
           className={`flex flex-col items-center gap-4 group cursor-pointer transition-all duration-300 ${
@@ -90,6 +94,15 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
           </span>
         </button>
       </div>
+      <DocumentPreviewModal 
+        isOpen={showDocumentPreview}
+        onClose={() => {
+          setShowDocumentPreview(false);
+          setPreviewPage(undefined);
+        }}
+        initialPage={previewPage}
+      />
+    </>
     );
   }
   
@@ -128,7 +141,8 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
     
     if (processStep === 'complete') {
       return (
-        <div className="flex flex-col items-center justify-center h-full text-center">
+        <>
+          <div className="flex flex-col items-center justify-center h-full text-center">
           <CheckCircle size={64} className="text-green-500 mb-5" />
           <h3 className="text-2xl font-semibold text-green-700 mb-2">Expertenwissen gesichert!</h3>
           <p className="text-gray-600 mb-8">
@@ -154,11 +168,21 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
             </Button>
           </div>
         </div>
+        <DocumentPreviewModal 
+          isOpen={showDocumentPreview}
+          onClose={() => {
+            setShowDocumentPreview(false);
+            setPreviewPage(undefined);
+          }}
+          initialPage={previewPage}
+        />
+      </>
       );
     }
     
     return (
-      <div className="h-full flex flex-col overflow-hidden">
+      <>
+        <div className="h-full flex flex-col overflow-hidden">
         {/* Sticky header with progress and buttons */}
         <div className="flex-shrink-0 bg-white border-b border-gray-200 pb-4 space-y-3">
           <div className="space-y-1">
@@ -204,13 +228,25 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                     <HelpCircle size={20} />
                     Extrahierte Q&A
                   </div>
-                  <Badge variant="outline" className="text-xs font-normal">
-                    📄 Seite {currentQAIndex === 0 ? '156' : 
-                               currentQAIndex === 1 ? '203' :
-                               currentQAIndex === 2 ? '378' :
-                               currentQAIndex === 3 ? '512' :
-                               currentQAIndex === 4 ? '689' : '0'}
-                  </Badge>
+                  <button
+                    className="h-6 px-2 text-xs font-normal border border-gray-300 rounded-md bg-white hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 flex items-center"
+                    onClick={() => {
+                      const pageNumber = currentQAIndex === 0 ? 156 : 
+                                       currentQAIndex === 1 ? 203 :
+                                       currentQAIndex === 2 ? 378 :
+                                       currentQAIndex === 3 ? 512 :
+                                       currentQAIndex === 4 ? 689 : 0;
+                      setPreviewPage(pageNumber);
+                      setShowDocumentPreview(true);
+                    }}
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    Seite {currentQAIndex === 0 ? '156' : 
+                           currentQAIndex === 1 ? '203' :
+                           currentQAIndex === 2 ? '378' :
+                           currentQAIndex === 3 ? '512' :
+                           currentQAIndex === 4 ? '689' : '0'}
+                  </button>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -391,6 +427,15 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
           </div>
         )}
       </div>
+      <DocumentPreviewModal 
+        isOpen={showDocumentPreview}
+        onClose={() => {
+          setShowDocumentPreview(false);
+          setPreviewPage(undefined);
+        }}
+        initialPage={previewPage}
+      />
+    </>
     );
   }
   

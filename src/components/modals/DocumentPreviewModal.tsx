@@ -7,11 +7,23 @@ import { wartungsberichtSeiten } from '../../data/wartungsberichtContent';
 interface DocumentPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialPage?: number;
 }
 
-export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({ isOpen, onClose }) => {
+export const DocumentPreviewModal: React.FC<DocumentPreviewModalProps> = ({ isOpen, onClose, initialPage }) => {
   const [currentPage, setCurrentPage] = useState(0);
   const [isClosing, setIsClosing] = useState(false);
+  
+  // Set initial page when modal opens
+  React.useEffect(() => {
+    if (isOpen && initialPage !== undefined) {
+      // Find the index of the page with the given page number
+      const pageIndex = wartungsberichtSeiten.findIndex(page => page.seitenNummer === initialPage);
+      if (pageIndex !== -1) {
+        setCurrentPage(pageIndex);
+      }
+    }
+  }, [isOpen, initialPage]);
   
   const currentPageData = wartungsberichtSeiten[currentPage];
   const totalPages = wartungsberichtSeiten.length;
