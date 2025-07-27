@@ -11,6 +11,7 @@ import { DetailPanel } from './panels/DetailPanel';
 import { Legend } from './common/Legend';
 import { FullscreenGraph } from './graph/FullscreenGraph';
 import { UseCaseModal } from './modals/UseCaseModal';
+import { CompletionModal } from './modals/CompletionModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -40,6 +41,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
   const [processStep, setProcessStep] = useState<'upload' | 'extract' | 'map' | 'complete'>('upload');
   const [graphDimensions, setGraphDimensions] = useState<GraphDimensions>({ width: 800, height: 600 });
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   const handleDocumentUpload = () => {
     setUploadedDoc({ name: 'Wagner_Wartungsberichte_2019-2024.pdf', size: '45.3 MB' });
@@ -52,7 +54,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
       
       const firstQA = sampleQAs[0];
       setProposedElements(generateProposedElements(firstQA, 0));
-    }, 1500);
+    }, 3000);
   };
 
   const handleConfirmMapping = () => {
@@ -117,6 +119,8 @@ export const KnowledgeGraphBuilder: React.FC = () => {
     setCurrentQAIndex(0);
     setSelectedNode(null);
     setIsPanelOpen(false);
+    setShowCompletionModal(false);
+    setShowUseCaseModal(false); // Don't show the start modal on reset
     setOntologyNodes([
       { id: 'herr_wagner', label: 'Herr Wagner', type: 'person', nodeType: 'person' },
       { id: 'anlage', label: 'Anlage', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
@@ -233,6 +237,8 @@ export const KnowledgeGraphBuilder: React.FC = () => {
             currentQAIndex={currentQAIndex}
             onConfirmMapping={handleConfirmMapping}
             onSkipMapping={handleSkipMapping}
+            onReset={resetDemo}
+            onShowCompletionModal={() => setShowCompletionModal(true)}
           />
         </div>
       </div>
@@ -310,6 +316,13 @@ export const KnowledgeGraphBuilder: React.FC = () => {
       <UseCaseModal
         isOpen={showUseCaseModal}
         onClose={() => setShowUseCaseModal(false)}
+      />
+      
+      {/* Completion Modal */}
+      <CompletionModal
+        isOpen={showCompletionModal}
+        onClose={() => setShowCompletionModal(false)}
+        extractedQAsCount={extractedQAs.length}
       />
     </div>
   );

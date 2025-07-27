@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, Brain, CheckCircle, HelpCircle, MessageSquare, Plus, Check, X } from 'lucide-react';
+import { AlertCircle, Brain, CheckCircle, HelpCircle, MessageSquare, Plus, Check, X, Play } from 'lucide-react';
 import type { QA } from '../../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -13,6 +13,8 @@ interface QAExtractionPanelProps {
   currentQAIndex: number;
   onConfirmMapping: () => void;
   onSkipMapping: () => void;
+  onReset?: () => void;
+  onShowCompletionModal?: () => void;
 }
 
 export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
@@ -20,30 +22,119 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
   extractedQAs,
   currentQAIndex,
   onConfirmMapping,
-  onSkipMapping
+  onSkipMapping,
+  onReset,
+  onShowCompletionModal
 }) => {
+  const handleStartExtraction = () => {
+    // Highlight the document permanently
+    const mainDoc = document.getElementById('main-document');
+    const mainDocIcon = mainDoc?.querySelector('svg');
+    if (mainDoc) {
+      // Change to blue background
+      mainDoc.classList.remove('bg-gray-50', 'border-gray-200');
+      mainDoc.classList.add('bg-blue-50', 'border-blue-200', 'animate-highlight');
+      
+      // Change icon color
+      if (mainDocIcon) {
+        mainDocIcon.classList.remove('text-gray-600');
+        mainDocIcon.classList.add('text-blue-600');
+      }
+      
+      // Remove animation after it completes
+      setTimeout(() => {
+        mainDoc.classList.remove('animate-highlight');
+      }, 1800);
+    }
+    
+    // Trigger the extraction
+    const uploadPanel = document.querySelector('[data-upload-trigger]') as HTMLElement;
+    if (uploadPanel) {
+      uploadPanel.click();
+    }
+  };
+
   if (processStep === 'upload') {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <div className="p-4 rounded-full bg-gray-100 mb-4">
-          <AlertCircle size={48} className="text-gray-400" />
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="relative group animate-float">
+          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
+          <Button
+            onClick={handleStartExtraction}
+            size="lg"
+            className="relative bg-blue-600 hover:bg-blue-700 text-white px-12 py-8 text-lg font-semibold shadow-lg hover:shadow-2xl hover:scale-105 transition-all transform duration-300"
+          >
+            <Play className="mr-3 h-6 w-6" />
+            Extraktion starten
+          </Button>
         </div>
-        <p className="text-gray-600 text-center">Laden Sie ein Dokument hoch, um die Extraktion zu starten</p>
       </div>
     );
   }
   
   if (processStep === 'extract') {
     return (
-      <div className="flex flex-col items-center justify-center py-12">
-        <Brain size={48} className="text-blue-500 animate-spin mb-5" />
-        <p className="text-gray-600">Extrahiere Q&As aus dem Dokument...</p>
+      <div className="flex flex-col items-center justify-center h-full">
+        <div className="relative">
+          {/* Outer ring */}
+          <div className="absolute inset-0 rounded-full border-4 border-blue-200 animate-ping"></div>
+          <div className="absolute inset-0 rounded-full border-4 border-blue-300 animate-ping animation-delay-200"></div>
+          
+          {/* Core animation */}
+          <div className="relative bg-gradient-to-br from-blue-500 to-blue-600 rounded-full p-8 shadow-2xl">
+            <Brain size={48} className="text-white animate-pulse" />
+          </div>
+          
+          {/* Rotating dots */}
+          <div className="absolute inset-0 animate-spin-slow">
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-400 rounded-full"></div>
+            <div className="absolute -bottom-2 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-400 rounded-full"></div>
+            <div className="absolute -left-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-blue-400 rounded-full"></div>
+            <div className="absolute -right-2 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-blue-400 rounded-full"></div>
+          </div>
+        </div>
+        
+        <div className="mt-8 text-center">
+          <p className="text-gray-700 font-medium">Extrahiere Wissen...</p>
+          <p className="text-sm text-gray-500 mt-1">Analysiere Q&As und Beziehungen</p>
+        </div>
       </div>
     );
   }
   
   if ((processStep === 'map' || processStep === 'complete') && extractedQAs.length > 0) {
     const progress = ((currentQAIndex + 1) / extractedQAs.length) * 100;
+    
+    if (processStep === 'complete') {
+      return (
+        <div className="flex flex-col items-center justify-center h-full text-center">
+          <CheckCircle size={64} className="text-green-500 mb-5" />
+          <h3 className="text-2xl font-semibold text-green-700 mb-2">Expertenwissen gesichert!</h3>
+          <p className="text-gray-600 mb-8">
+            {extractedQAs.length} kritische Wissensfragmente aus Herrn Wagners Dokumenten extrahiert
+          </p>
+          
+          <div className="space-y-3">
+            <Button
+              onClick={onReset}
+              size="lg"
+              variant="secondary"
+              className="w-64"
+            >
+              Demo zurücksetzen
+            </Button>
+            
+            <Button
+              onClick={onShowCompletionModal}
+              size="lg"
+              className="w-64 bg-green-600 hover:bg-green-700 text-white"
+            >
+              Extraktionswissen ansehen
+            </Button>
+          </div>
+        </div>
+      );
+    }
     
     return (
       <div className="space-y-4">
@@ -249,98 +340,6 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                 Überspringen
               </Button>
             </div>
-          </div>
-        )}
-        
-        {processStep === 'complete' && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <CheckCircle size={64} className="text-green-500 mb-5" />
-            <h3 className="text-2xl font-semibold text-green-700 mb-2">Expertenwissen gesichert!</h3>
-            <p className="text-gray-600 mb-6">
-              {extractedQAs.length} kritische Wissensfragmente aus Herrn Wagners Dokumenten extrahiert
-            </p>
-            
-            <Card className="bg-green-50 border-green-200 w-full">
-              <CardContent className="pt-6">
-                <h4 className="text-green-800 font-semibold mb-4">
-                  🧠 Das digitale Gedächtnis kann jetzt antworten:
-                </h4>
-                <ul className="space-y-3 text-left">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
-                    <div>
-                      <span className="font-medium">"Welche Anlagen haben hydraulische Probleme?"</span>
-                      <span className="text-sm text-gray-600 block">→ X500 zeigt Druckschwankungen (Q1), FB-2000 mit Getriebeproblemen (Q3)</span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
-                    <div>
-                      <span className="font-medium">"Welche Kunden kennt Wagner persönlich?"</span>
-                      <span className="text-sm text-gray-600 block">→ BMW München, Bosch, BMW Werk 2 (Meister Huber), VW Wolfsburg, Daimler Stuttgart, Audi Ingolstadt (Dr. Weber)</span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
-                    <div>
-                      <span className="font-medium">"Welche Servicepartner sind vertrauenswürdig?"</span>
-                      <span className="text-sm text-gray-600 block">→ Hydrotech Augsburg (Hydraulik), Müller Präzisionstechnik (Mechanik), OELCHECK Brannenburg (Ölanalyse)</span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
-                    <div>
-                      <span className="font-medium">"Welche Firmware-Bugs sind bekannt?"</span>
-                      <span className="text-sm text-gray-600 block">→ Siemens S7-1500 V2.8.1 (Geisterfehler), Sicherheits-SPS vor 2019 (Not-Aus Bug)</span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
-                    <div>
-                      <span className="font-medium">"Welche Umgebungsfaktoren stören Anlagen?"</span>
-                      <span className="text-sm text-gray-600 block">→ Gabelstapler-Ladestationen (Netzoberwellen Di+Do 14-16), Audi Halle 4 (Vibration), Staub bei Daimler</span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
-                    <div>
-                      <span className="font-medium">"Welche Kostenersparnisse sind dokumentiert?"</span>
-                      <span className="text-sm text-gray-600 block">→ 3.520€ (Hydraulik), 3.550€ (Mechanik), 2.5 Mio€/Jahr (Prozessoptimierung VW), ROI 1:15 (Ölanalyse)</span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
-                    <div>
-                      <span className="font-medium">"Welche Sicherheitsprobleme sind kritisch?"</span>
-                      <span className="text-sm text-gray-600 block">→ Not-Aus Defekt mit Wachmann-Überbrückung, Software-Lizenz Ablauf, BG-Audit Dokumentationspflicht</span>
-                    </div>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-600 mt-0.5">✓</span>
-                    <div>
-                      <span className="font-medium">"Welche versteckten Optimierungen gibt es?"</span>
-                      <span className="text-sm text-gray-600 block">→ Parameter P412 auf 95% (spart 5-8s), Ölwechsel-Matrix statt Herstellerangaben, ElectroAsia Schütze (60% günstiger)</span>
-                    </div>
-                  </li>
-                </ul>
-                
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <h5 className="text-blue-900 font-semibold mb-2">💡 Weitere mögliche Abfragen durch Graphen-Verknüpfungen:</h5>
-                  <ul className="space-y-1 text-sm text-blue-800">
-                    <li>• "Zeige alle Komponenten mit Konstruktionsfehlern" → Schneckengetriebe SG-450</li>
-                    <li>• "Welche Anlagen sind bei welchen Kunden?" → X500 bei BMW München, X300 Schütz-Inkompatibilität</li>
-                    <li>• "Alle Notfall-Lösungen mit Sicherheitsrisiko?" → Not-Aus Überbrückung, Temperatur-Simulation</li>
-                    <li>• "Dokumentierte Inkompatibilitäten?" → Schütz K4 mit X300 vor 2018, Firmware 2.4+ mit Bosch-SPS</li>
-                    <li>• "Kunden mit speziellen Kommunikationsregeln?" → Audi (Dr. Weber), BMW Werk 2 (Meister Huber)</li>
-                    <li>• "Wartungsstrategien mit ROI &gt; 10?" → Ölanalyse (1:15), Prozessoptimierung P412</li>
-                  </ul>
-                </div>
-                
-                <p className="mt-6 text-sm font-medium text-green-700 italic">
-                  30 Jahre Erfahrung von Herrn Wagner - jetzt für immer verfügbar!
-                </p>
-              </CardContent>
-            </Card>
           </div>
         )}
       </div>
