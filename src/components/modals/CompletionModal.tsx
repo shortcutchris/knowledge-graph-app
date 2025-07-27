@@ -117,7 +117,7 @@ export const CompletionModal: React.FC<CompletionModalProps> = ({ isOpen, onClos
                     <span className="text-green-600 mt-0.5">✓</span>
                     <div>
                       <span className="font-medium">"Welche Firmware-Bugs sind bekannt?"</span>
-                      <span className="text-sm text-gray-600 block">→ Siemens S7-1500 V2.8.1, Sicherheits-SPS vor 2019</span>
+                      <span className="text-sm text-gray-600 block">→ SPS-Steuerung V2.8.1, Sicherheits-SPS vor 2019</span>
                     </div>
                   </li>
                   <li className="flex items-start gap-2">

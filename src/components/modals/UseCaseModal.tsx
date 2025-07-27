@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, FileText, Calendar, UserCheck, Building, AlertCircle } from 'lucide-react';
+import { X, FileText, Calendar, UserCheck, Building, AlertCircle, TrendingDown, Clock, Users, Lightbulb, AlertTriangle, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import expertWagnerImage from '../../assets/images/expert_herr_wagner.png';
@@ -46,7 +46,7 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
             </button>
             
             <h1 className="text-3xl font-bold mb-2">
-              Wissensbewahrung bei Siemens
+              Corporate Digital Brain - Knowledge Builder
             </h1>
             <p className="text-gray-300 text-lg">
               30 Jahre Expertenwissen digitalisieren - bevor es zu spät ist
@@ -73,7 +73,7 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
                     Kritische Situation: Herr Wagner geht in Rente
                   </h2>
                   <p className="text-gray-700 leading-relaxed">
-                    <strong>Herr Wagner</strong>, Senior-Techniker bei Siemens mit über <strong>30 Jahren Erfahrung</strong>, 
+                    <strong>Herr Wagner</strong>, Senior-Techniker bei einem führenden Maschinenbau-Unternehmen mit über <strong>30 Jahren Erfahrung</strong>, 
                     geht in wenigen Monaten in Rente. Sein Wissen über Anlagen, Fehlerdiagnosen, Kundenkontakte 
                     und spezielle Lösungen steckt in tausenden Dokumenten, E-Mails und handschriftlichen Notizen.
                     <br /><br />
@@ -85,59 +85,84 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
               </div>
             </div>
 
-            {/* Statistics Dashboard */}
+            {/* Risk & Value Dashboard */}
             <div className="mb-6">
-              <h3 className="text-lg font-semibold mb-4 text-gray-800">
-                Herr Wagners Erfahrungsschatz in Zahlen:
+              <h3 className="text-lg font-semibold mb-4 text-gray-800 flex items-center gap-2">
+                <AlertTriangle className="h-5 w-5 text-orange-500" />
+                Was auf dem Spiel steht:
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <Card className="bg-gray-50 border-gray-300">
+              
+              {/* Critical Risk Metrics */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <Card className="bg-red-50 border-red-200">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <Calendar className="h-8 w-8 text-gray-600" />
-                      <div>
-                        <p className="text-2xl font-bold text-gray-900">30</p>
-                        <p className="text-sm text-gray-600">Jahre Erfahrung</p>
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-red-100 rounded-lg">
+                        <TrendingDown className="h-6 w-6 text-red-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-2xl font-bold text-red-700">-85%</p>
+                        <p className="text-sm font-semibold text-red-700">Wissensverlust bei Pensionierung</p>
+                        <p className="text-xs text-red-600 mt-1">
+                          Nur 15% des Expertenwissens ist dokumentiert
+                        </p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
 
-                <Card className="bg-gray-50 border-gray-300">
+                <Card className="bg-orange-50 border-orange-200">
                   <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <FileText className="h-8 w-8 text-gray-600" />
-                      <div>
-                        <p className="text-2xl font-bold text-gray-900">4.5M</p>
-                        <p className="text-sm text-gray-600">Eingesparte €</p>
+                    <div className="flex items-start gap-3">
+                      <div className="p-2 bg-orange-100 rounded-lg">
+                        <Clock className="h-6 w-6 text-orange-600" />
+                      </div>
+                      <div className="flex-1">
+                        <p className="text-2xl font-bold text-orange-700">18+ Monate</p>
+                        <p className="text-sm font-semibold text-orange-700">Einarbeitungszeit Nachfolger</p>
+                        <p className="text-xs text-orange-600 mt-1">
+                          Ohne strukturiertes Wissen
+                        </p>
                       </div>
                     </div>
                   </CardContent>
                 </Card>
+              </div>
+            </div>
 
-                <Card className="bg-gray-50 border-gray-300">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <UserCheck className="h-8 w-8 text-gray-600" />
-                      <div>
-                        <p className="text-2xl font-bold text-gray-900">723</p>
-                        <p className="text-sm text-gray-600">Gelöste Fälle</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="bg-gray-50 border-gray-300">
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <Building className="h-8 w-8 text-gray-600" />
-                      <div>
-                        <p className="text-2xl font-bold text-gray-900">45</p>
-                        <p className="text-sm text-gray-600">Kunden</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+            {/* Value Proposition */}
+            <div className="mb-6 p-5 bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-lg">
+              <h3 className="text-lg font-semibold mb-3 text-blue-900">
+                💡 Warum ist das so wertvoll?
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-600 font-bold">1.</span>
+                  <div>
+                    <strong className="text-blue-900">Implizites Wissen</strong>
+                    <p className="text-gray-700 mt-1">
+                      Wagner weiß Dinge, die nirgends stehen - Tricks, die Millionen sparen
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-600 font-bold">2.</span>
+                  <div>
+                    <strong className="text-blue-900">Persönliche Netzwerke</strong>
+                    <p className="text-gray-700 mt-1">
+                      30 Jahre Kontakte & Vertrauen - unbezahlbar und unersetzlich
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-600 font-bold">3.</span>
+                  <div>
+                    <strong className="text-blue-900">Fehler-Historie</strong>
+                    <p className="text-gray-700 mt-1">
+                      Wissen über teure Fehler, die nie wieder passieren dürfen
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
 
