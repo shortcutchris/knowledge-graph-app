@@ -194,6 +194,7 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
                       <li>Anlage X500 (Instanz)</li>
                       <li>Fehler F42 (Instanz)</li>
                       <li>BMW München (Kunde)</li>
+                      <li>Hr. Maier (Kontakt - Hydrotech)</li>
                       <li>Komponente (neue Klasse)</li>
                     </>
                   )}

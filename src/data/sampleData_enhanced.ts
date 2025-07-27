@@ -11,6 +11,7 @@ export const enhancedSampleQAs: QA[] = [
       { text: 'X500', type: 'Anlage', mapTo: 'anlage', isNew: false },
       { text: 'Proportionalventil PV12', type: 'Hydraulikkomponente', mapTo: null, isNew: true },
       { text: 'Hydrotech Augsburg', type: 'Servicepartner', mapTo: null, isNew: true },
+      { text: 'Hr. Maier', type: 'Kontakt', mapTo: 'kontakt', isNew: false },
       { text: 'Druckschwankung 180-220bar', type: 'Symptom', mapTo: null, isNew: true }
     ],
     predicates: [

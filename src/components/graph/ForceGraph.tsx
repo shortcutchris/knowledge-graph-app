@@ -166,8 +166,8 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
       }))
       .force("y", d3.forceY().strength(0.08).y(d => {
         if (d.id === 'herr_wagner') return height * 0.3;
-        if (d.id === 'anlage' || d.id === 'kunde' || d.id === 'fehler') return height * 0.5;
-        if (d.parent === 'anlage' || d.parent === 'kunde' || d.parent === 'fehler') return height * 0.7;
+        if (d.id === 'anlage' || d.id === 'kunde' || d.id === 'fehler' || d.id === 'kontakt') return height * 0.5;
+        if (d.parent === 'anlage' || d.parent === 'kunde' || d.parent === 'fehler' || d.parent === 'kontakt') return height * 0.7;
         return height * 0.5;
       }))
       .alpha(1)
@@ -418,6 +418,14 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
             if (d.isProposed) return "#fff3cd";
             if (d.isNew) return "#d4edda";
             if (d.id === 'entity') return "#e8eaf6";
+            // Special color for contact instances
+            const links = allLinks as any[];
+            const isContactInstance = links.some(link => 
+              (link.source === d.id || link.source.id === d.id) && 
+              (link.target === 'kontakt' || link.target.id === 'kontakt') && 
+              link.type === 'instance_of'
+            );
+            if (isContactInstance) return "#f3e5f5";
             if (d.type === 'instance') return "#e3f2fd";
             return "#f8f9fa";
           })
@@ -425,6 +433,14 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
             if (d.isProposed) return "#ffc107";
             if (d.isNew) return "#28a745";
             if (d.id === 'entity') return "#5c6bc0";
+            // Special color for contact instances
+            const links = allLinks as any[];
+            const isContactInstance = links.some(link => 
+              (link.source === d.id || link.source.id === d.id) && 
+              (link.target === 'kontakt' || link.target.id === 'kontakt') && 
+              link.type === 'instance_of'
+            );
+            if (isContactInstance) return "#9c27b0";
             if (d.type === 'instance') return "#2196f3";
             return "#dee2e6";
           })
@@ -443,7 +459,16 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
             return "#333";
           })
           .attr("pointer-events", "none")
-          .text(d.label);
+          .text(d => {
+            // Check if this is a contact instance
+            const links = allLinks as any[];
+            const isContactInstance = links.some(link => 
+              (link.source === d.id || link.source.id === d.id) && 
+              (link.target === 'kontakt' || link.target.id === 'kontakt') && 
+              link.type === 'instance_of'
+            );
+            return isContactInstance ? `👤 ${d.label}` : d.label;
+          });
 
         nodeGroup.append("text")
           .attr("text-anchor", "middle")

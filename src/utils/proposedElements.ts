@@ -61,6 +61,12 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           label: 'Kondensator C3'
         },
         {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'hr_maier',
+          label: 'Hr. Maier'
+        },
+        {
           type: 'edge',
           from: 'x500',
           to: 'anlage',
@@ -103,6 +109,19 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           from: 'bmw_muenchen',
           to: 'x500',
           label: 'betreibt_anlage'
+        },
+        {
+          type: 'edge',
+          from: 'hr_maier',
+          to: 'kontakt',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'hr_maier',
+          to: 'kondensator_c3',
+          label: 'repariert',
+          attributes: { firma: 'Hydrotech Augsburg', telefon: '0821-445566' }
         },
         {
           type: 'edge',
@@ -207,6 +226,12 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           type: 'edge',
           from: 'bmw_werk2',
           to: 'kunde',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'meister_huber',
+          to: 'kontakt',
           label: 'instance_of'
         },
         {
@@ -540,9 +565,27 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           label: 'Dr. Weber (Werksleiter)'
         },
         {
+          type: 'instance',
+          nodeType: 'instance',
+          id: 'schichtleiter_mueller',
+          label: 'Schichtleiter Müller'
+        },
+        {
           type: 'edge',
           from: 'audi_ingolstadt',
           to: 'kunde',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'dr_weber',
+          to: 'kontakt',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'schichtleiter_mueller',
+          to: 'kontakt',
           label: 'instance_of'
         },
         {
@@ -564,6 +607,13 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           to: 'dr_weber',
           label: 'hat_ansprechpartner',
           attributes: { position: 'Werksleiter' }
+        },
+        {
+          type: 'edge',
+          from: 'audi_ingolstadt',
+          to: 'schichtleiter_mueller',
+          label: 'hat_ansprechpartner',
+          attributes: { schicht: 'Frühschicht', hinweis: 'mag keine Überraschungen' }
         },
         {
           type: 'edge',
@@ -606,6 +656,12 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
           type: 'edge',
           from: 'notfall_ueberbrueckung',
           to: 'notfallmassnahme',
+          label: 'instance_of'
+        },
+        {
+          type: 'edge',
+          from: 'wachmann',
+          to: 'kontakt',
           label: 'instance_of'
         },
         {

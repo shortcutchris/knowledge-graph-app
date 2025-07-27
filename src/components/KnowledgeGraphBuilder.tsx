@@ -26,11 +26,13 @@ export const KnowledgeGraphBuilder: React.FC = () => {
     { id: 'anlage', label: 'Anlage', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
     { id: 'kunde', label: 'Kunde', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
     { id: 'fehler', label: 'Fehler', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
+    { id: 'kontakt', label: 'Kontakte', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
   ]);
   const [ontologyLinks, setOntologyLinks] = useState<Link[]>([
     { source: 'herr_wagner', target: 'anlage', type: 'kennt' },
     { source: 'herr_wagner', target: 'kunde', type: 'betreut' },
     { source: 'herr_wagner', target: 'fehler', type: 'löst' },
+    { source: 'herr_wagner', target: 'kontakt', type: 'kennt' },
   ]);
   const [proposedElements, setProposedElements] = useState<ProposedElement[]>([]);
   const [processStep, setProcessStep] = useState<'upload' | 'extract' | 'map' | 'complete'>('upload');
@@ -118,11 +120,13 @@ export const KnowledgeGraphBuilder: React.FC = () => {
       { id: 'anlage', label: 'Anlage', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
       { id: 'kunde', label: 'Kunde', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
       { id: 'fehler', label: 'Fehler', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
+      { id: 'kontakt', label: 'Kontakte', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
     ]);
     setOntologyLinks([
       { source: 'herr_wagner', target: 'anlage', type: 'kennt' },
       { source: 'herr_wagner', target: 'kunde', type: 'betreut' },
       { source: 'herr_wagner', target: 'fehler', type: 'löst' },
+      { source: 'herr_wagner', target: 'kontakt', type: 'kennt' },
     ]);
     setProposedElements([]);
     setProcessStep('upload');
@@ -164,14 +168,14 @@ export const KnowledgeGraphBuilder: React.FC = () => {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Left Panel - Document Import (Collapsible) */}
-      <div className={`${isLeftPanelCollapsed ? 'w-12' : 'w-1/4'} bg-white border-r flex flex-col transition-all duration-300 relative`}>
+      <div className={`${isLeftPanelCollapsed ? 'w-12' : 'w-1/4'} bg-white border-r border-gray-300 flex flex-col transition-all duration-300 relative`}>
         {isLeftPanelCollapsed ? (
-          <div className="flex items-center justify-center h-full">
+          <div className="bg-gray-900 h-full flex items-center justify-center">
             <Button
               onClick={() => setIsLeftPanelCollapsed(false)}
               variant="ghost"
               size="icon"
-              className="h-8 w-8"
+              className="h-8 w-8 text-white hover:bg-gray-800"
               title="Panel öffnen"
             >
               <ChevronRight className="h-4 w-4" />
@@ -179,17 +183,17 @@ export const KnowledgeGraphBuilder: React.FC = () => {
           </div>
         ) : (
           <>
-            <div className="p-5 pb-0">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900">
-                  <FileText className="h-6 w-6" />
+            <div className="bg-gray-900 h-16 min-h-[64px] flex items-center px-5 border-b border-gray-300">
+              <div className="flex items-center justify-between w-full">
+                <h2 className="flex items-center gap-2 text-xl font-semibold text-white">
+                  <FileText className="h-6 w-6 text-white" />
                   Dokument Import
                 </h2>
                 <Button
                   onClick={() => setIsLeftPanelCollapsed(true)}
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 -mr-2"
+                  className="h-8 w-8 -mr-2 text-white hover:bg-gray-800"
                   title="Panel minimieren"
                 >
                   <ChevronLeft className="h-4 w-4" />
@@ -197,7 +201,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
               </div>
             </div>
             
-            <div className="flex-1 overflow-y-auto px-5 pb-5">
+            <div className="flex-1 overflow-y-auto px-5 pt-5 pb-5">
               <DocumentUploadPanel
                 uploadedDoc={uploadedDoc}
                 onDocumentUpload={handleDocumentUpload}
@@ -210,15 +214,17 @@ export const KnowledgeGraphBuilder: React.FC = () => {
       </div>
 
       {/* Middle Panel - Q&A Extraction & Mapping */}
-      <div className={`${isLeftPanelCollapsed ? 'w-[40%]' : 'w-[35%]'} bg-white border-r flex flex-col transition-all duration-300`}>
-        <div className="p-5 pb-0">
-          <h2 className="flex items-center gap-2 text-xl font-semibold text-gray-900 mb-5">
-            <Brain className="h-6 w-6" />
-            Q&A Extraktion & Mapping
-          </h2>
+      <div className={`${isLeftPanelCollapsed ? 'w-[40%]' : 'w-[35%]'} bg-white border-r border-gray-300 flex flex-col transition-all duration-300`}>
+        <div className="bg-gray-900 h-16 min-h-[64px] flex items-center px-5 border-b border-gray-300">
+          <div className="flex items-center justify-between w-full">
+            <h2 className="flex items-center gap-2 text-xl font-semibold text-white">
+              <Brain className="h-6 w-6 text-white" />
+              Q&A Extraktion & Mapping
+            </h2>
+          </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto px-5 pb-5">
+        <div className="flex-1 overflow-y-auto px-5 pt-5 pb-5">
           <QAExtractionPanel
             processStep={processStep}
             extractedQAs={extractedQAs}
@@ -230,25 +236,29 @@ export const KnowledgeGraphBuilder: React.FC = () => {
       </div>
 
       {/* Right Panel - Ontology Graph */}
-      <div id="graph-container" className={`${isLeftPanelCollapsed ? 'flex-1' : 'w-[40%]'} bg-gray-50 p-5 relative transition-all duration-300`}>
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="text-xl font-semibold text-gray-900">Wissensgraph</h2>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">
-              Hover • Klick • Ziehen
-            </span>
-            <Button
-              onClick={() => setIsFullscreen(true)}
-              size="sm"
-              className="gap-2"
-            >
-              <Maximize2 className="h-4 w-4" />
-              Vollbild
-            </Button>
+      <div id="graph-container" className={`${isLeftPanelCollapsed ? 'flex-1' : 'w-[40%]'} bg-gray-50 flex flex-col transition-all duration-300`}>
+        <div className="bg-gray-900 h-16 min-h-[64px] flex items-center px-5 border-b border-gray-300">
+          <div className="flex items-center justify-between w-full">
+            <h2 className="flex items-center gap-2 text-xl font-semibold text-white">Wissensgraph</h2>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-gray-400">
+                Hover • Klick • Ziehen
+              </span>
+              <Button
+                onClick={() => setIsFullscreen(true)}
+                size="sm"
+                variant="secondary"
+                className="gap-2 bg-white text-gray-900 hover:bg-gray-100"
+              >
+                <Maximize2 className="h-4 w-4" />
+                Vollbild
+              </Button>
+            </div>
           </div>
         </div>
         
-        <Card className="relative h-[calc(100%-60px)] overflow-hidden">
+        <div className="flex-1 p-5 relative">
+          <Card className="relative h-full overflow-hidden border-gray-300 !py-0">
           <ForceGraph 
             nodes={ontologyNodes}
             links={ontologyLinks}
@@ -281,6 +291,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
             onToggle={() => setIsLegendMinimized(!isLegendMinimized)}
           />
         </Card>
+        </div>
       </div>
       
       {/* Fullscreen Graph */}
