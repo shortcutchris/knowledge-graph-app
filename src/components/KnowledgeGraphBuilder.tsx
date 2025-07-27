@@ -10,6 +10,7 @@ import { ForceGraph } from './graph/ForceGraph';
 import { DetailPanel } from './panels/DetailPanel';
 import { Legend } from './common/Legend';
 import { FullscreenGraph } from './graph/FullscreenGraph';
+import { UseCaseModal } from './modals/UseCaseModal';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
@@ -21,6 +22,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
   const [isLegendMinimized, setIsLegendMinimized] = useState(false);
   const [isLeftPanelCollapsed, setIsLeftPanelCollapsed] = useState(false);
+  const [showUseCaseModal, setShowUseCaseModal] = useState(true);
   const [ontologyNodes, setOntologyNodes] = useState<Node[]>([
     { id: 'herr_wagner', label: 'Herr Wagner', type: 'person', nodeType: 'person' },
     { id: 'anlage', label: 'Anlage', type: 'class', parent: 'herr_wagner', nodeType: 'class' },
@@ -303,6 +305,12 @@ export const KnowledgeGraphBuilder: React.FC = () => {
           onClose={() => setIsFullscreen(false)}
         />
       )}
+      
+      {/* Use Case Modal */}
+      <UseCaseModal
+        isOpen={showUseCaseModal}
+        onClose={() => setShowUseCaseModal(false)}
+      />
     </div>
   );
 };
