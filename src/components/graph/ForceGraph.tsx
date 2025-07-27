@@ -166,15 +166,18 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
       .force("charge", d3.forceManyBody().strength(d => {
         if (d.nodeType === 'question' || d.nodeType === 'answer') return -150;
         if (d.id === 'herr_wagner') return -600;
+        if (d.nodeType === 'document') return -500;
         return -300;
       }))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collision", d3.forceCollide().radius(d => {
         if (d.nodeType === 'question' || d.nodeType === 'answer') return 50;
         if (d.id === 'herr_wagner') return 90;
+        if (d.nodeType === 'document') return 80;
         return 70;
       }))
       .force("y", d3.forceY().strength(0.08).y(d => {
+        if (d.nodeType === 'document') return height * 0.15; // Position document at top
         if (d.id === 'herr_wagner') return height * 0.3;
         if (d.id === 'anlage' || d.id === 'kunde' || d.id === 'fehler' || d.id === 'kontakt') return height * 0.5;
         if (d.parent === 'anlage' || d.parent === 'kunde' || d.parent === 'fehler' || d.parent === 'kontakt') return height * 0.7;
@@ -430,6 +433,46 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
           .attr("fill", "#1976d2")
           .attr("pointer-events", "none")
           .text(d.label);
+      } else if (d.nodeType === 'document') {
+        // Document nodes
+        nodeGroup.append("rect")
+          .attr("x", -50)
+          .attr("y", -30)
+          .attr("width", 100)
+          .attr("height", 60)
+          .attr("rx", 6)
+          .attr("fill", "#fff3cd")
+          .attr("stroke", "#856404")
+          .attr("stroke-width", 2)
+          .attr("class", "node-shape");
+        
+        // Add document icon
+        nodeGroup.append("text")
+          .attr("text-anchor", "middle")
+          .attr("y", -5)
+          .attr("font-size", "24px")
+          .attr("pointer-events", "none")
+          .text("📄");
+          
+        nodeGroup.append("text")
+          .attr("text-anchor", "middle")
+          .attr("y", 20)
+          .attr("font-size", "12px")
+          .attr("fill", "#856404")
+          .attr("font-weight", "bold")
+          .attr("pointer-events", "none")
+          .text(d.label);
+        
+        // Add file size below
+        if (d.fileSize) {
+          nodeGroup.append("text")
+            .attr("text-anchor", "middle")
+            .attr("y", 35)
+            .attr("font-size", "10px")
+            .attr("fill", "#856404")
+            .attr("pointer-events", "none")
+            .text(d.fileSize);
+        }
       } else {
         nodeGroup.append("rect")
           .attr("width", d.id === 'entity' ? 140 : 120)

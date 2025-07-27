@@ -11,6 +11,14 @@ export interface Node {
   y?: number;
   fx?: number | null;
   fy?: number | null;
+  // Document specific fields
+  uploadDate?: string;
+  documentDate?: string;
+  author?: string;
+  fileSize?: string;
+  fileName?: string;
+  pageCount?: number;
+  extractionDate?: string;
 }
 
 export interface Link {
@@ -43,6 +51,8 @@ export interface QA {
   predicates: Predicate[];
   newClassProposal?: ClassProposal | null;
   metadata?: QAMetadata;
+  sourceDocument?: string; // Reference to document node ID
+  extractionDate?: string;
 }
 
 export interface QAMetadata {

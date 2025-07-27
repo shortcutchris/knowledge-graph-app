@@ -44,15 +44,48 @@ export const KnowledgeGraphBuilder: React.FC = () => {
   const [showCompletionModal, setShowCompletionModal] = useState(false);
 
   const handleDocumentUpload = () => {
-    setUploadedDoc({ name: 'Wagner_Wartungsberichte_2019-2024.pdf', size: '45.3 MB' });
+    const documentInfo = { 
+      name: 'Wagner_Wartungsberichte_2019-2024.pdf', 
+      size: '45.3 MB' 
+    };
+    setUploadedDoc(documentInfo);
     setProcessStep('extract');
     
+    // Add document node to the graph
+    const documentNode: Node = {
+      id: 'doc_wagner_2019_2024',
+      label: 'Wartungsberichte 2019-2024',
+      nodeType: 'document',
+      type: 'document',
+      fileName: documentInfo.name,
+      fileSize: documentInfo.size,
+      pageCount: 847,
+      uploadDate: new Date().toISOString(),
+      author: 'Herr Wagner',
+      documentDate: '2019-2024'
+    };
+    
+    setOntologyNodes(prev => [...prev, documentNode]);
+    
+    // Add link from Herr Wagner to document
+    setOntologyLinks(prev => [...prev, {
+      source: 'herr_wagner',
+      target: 'doc_wagner_2019_2024',
+      type: 'erstellt'
+    }]);
+    
     setTimeout(() => {
-      setExtractedQAs(sampleQAs);
+      // Add sourceDocument reference to all QAs
+      const qasWithSource = sampleQAs.map(qa => ({
+        ...qa,
+        sourceDocument: 'doc_wagner_2019_2024',
+        extractionDate: new Date().toISOString()
+      }));
+      setExtractedQAs(qasWithSource);
       setCurrentQAIndex(0);
       setProcessStep('map');
       
-      const firstQA = sampleQAs[0];
+      const firstQA = qasWithSource[0];
       setProposedElements(generateProposedElements(firstQA, 0));
     }, 3000);
   };

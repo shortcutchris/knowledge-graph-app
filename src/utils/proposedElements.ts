@@ -23,6 +23,26 @@ export const generateProposedElements = (qa: QA, qaIndex: number): ProposedEleme
       label: 'has_answer'
     }
   ];
+  
+  // Add document provenance links if sourceDocument exists
+  if (qa.sourceDocument) {
+    baseElements.push(
+      {
+        type: 'edge',
+        from: `q_${qa.id}`,
+        to: qa.sourceDocument,
+        label: 'extrahiert_aus',
+        attributes: {
+          seite: qaIndex === 0 ? '156' : 
+                 qaIndex === 1 ? '203' :
+                 qaIndex === 2 ? '378' :
+                 qaIndex === 3 ? '512' :
+                 qaIndex === 4 ? '689' : '0',
+          datum: qa.extractionDate || new Date().toISOString().split('T')[0]
+        }
+      }
+    );
+  }
 
   switch(qaIndex) {
     case 0: // Q1 - Component failure
