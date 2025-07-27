@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Minimize2, Move } from 'lucide-react';
 import type { Node, Link, ProposedElement } from '../../types';
-import { ForceGraph } from './ForceGraph';
+import { ForceGraph, ForceGraphHandle } from './ForceGraph';
 import { SidePanel } from '../panels/SidePanel';
 import { Legend } from '../common/Legend';
 import { Button } from '@/components/ui/button';
@@ -24,6 +24,16 @@ export const FullscreenGraph: React.FC<FullscreenGraphProps> = ({
   const [isLegendMinimized, setIsLegendMinimized] = useState(false);
   const [selectedNode, setSelectedNode] = useState<Node | null>(null);
   const [isSidePanelOpen, setIsSidePanelOpen] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
+  const graphRef = useRef<ForceGraphHandle>(null);
+  
+  const handleClose = () => {
+    setIsClosing(true);
+    // Wait for animation to complete before actually closing
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
 
   useEffect(() => {
     const handleResize = () => {
@@ -35,7 +45,7 @@ export const FullscreenGraph: React.FC<FullscreenGraphProps> = ({
 
     const handleKeyPress = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        handleClose();
       }
     };
 
@@ -46,9 +56,23 @@ export const FullscreenGraph: React.FC<FullscreenGraphProps> = ({
       window.removeEventListener('keydown', handleKeyPress);
     };
   }, [onClose]);
+  
+  // Fit graph to viewport when fullscreen opens
+  useEffect(() => {
+    // Small delay to ensure the graph is rendered before fitting
+    const timer = setTimeout(() => {
+      if (graphRef.current) {
+        graphRef.current.fitToViewport();
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
-    <div className="fixed inset-0 bg-gray-100 z-[1000] flex flex-col animate-in fade-in duration-300">
+    <div className={`fixed inset-0 bg-gray-100 z-[1000] flex flex-col transition-all duration-300 ${
+      isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100 animate-in fade-in zoom-in-95'
+    }`}>
       {/* Header */}
       <div className="bg-gray-900 h-16 min-h-[64px] flex items-center justify-between px-5 border-b border-gray-300">
         <h2 className="text-xl font-semibold text-white flex items-center gap-4">
@@ -64,7 +88,7 @@ export const FullscreenGraph: React.FC<FullscreenGraphProps> = ({
             Ziehen zum Bewegen • Scrollen zum Zoomen • Klick für Details • ESC zum Verlassen
           </span>
           <Button
-            onClick={onClose}
+            onClick={handleClose}
             size="sm"
             className="gap-2 bg-white text-gray-900 hover:bg-gray-100"
           >
@@ -81,6 +105,7 @@ export const FullscreenGraph: React.FC<FullscreenGraphProps> = ({
           isSidePanelOpen ? 'mr-5' : 'mr-5'
         }`}>
           <ForceGraph 
+            ref={graphRef}
             nodes={nodes}
             links={links}
             proposedElements={proposedElements}

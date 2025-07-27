@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useImperativeHandle, forwardRef } from 'react';
 import * as d3 from 'd3';
 import { ZoomIn, ZoomOut, Move } from 'lucide-react';
 import type { Node, Link, ProposedElement, TooltipState } from '../../types';
@@ -18,7 +18,11 @@ interface ForceGraphProps {
   graphId?: string;
 }
 
-export const ForceGraph: React.FC<ForceGraphProps> = ({ 
+export interface ForceGraphHandle {
+  fitToViewport: () => void;
+}
+
+export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({ 
   nodes, 
   links, 
   proposedElements, 
@@ -28,7 +32,7 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
   selectedNodeId = null,
   enableZoomControls = false, 
   graphId = 'main' 
-}) => {
+}, ref) => {
   const svgRef = useRef<SVGSVGElement>(null);
   const simulationRef = useRef<d3.Simulation<Node, Link> | null>(null);
   const zoomRef = useRef<d3.ZoomBehavior<SVGSVGElement, unknown> | null>(null);
@@ -60,6 +64,11 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
         .call(zoomRef.current.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
     }
   };
+  
+  // Expose fitGraphToViewport to parent components
+  useImperativeHandle(ref, () => ({
+    fitToViewport: fitGraphToViewport
+  }));
 
   useEffect(() => {
     if (!nodes.length) return;
@@ -684,4 +693,6 @@ export const ForceGraph: React.FC<ForceGraphProps> = ({
       )}
     </div>
   );
-};
+});
+
+ForceGraph.displayName = 'ForceGraph';

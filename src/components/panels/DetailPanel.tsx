@@ -71,21 +71,19 @@ export const DetailPanel: React.FC<DetailPanelProps> = ({ node, isOpen, onClose,
           <>
             <DialogHeader className="flex-shrink-0">
               <div 
-                className="flex items-center gap-3 p-4 rounded-lg -mx-6 -mt-6"
-                style={{ backgroundColor: typeInfo.bg }}
+                className="flex items-center gap-3 p-4 -mx-6 -mt-6 bg-gray-900"
               >
-                <div style={{ color: typeInfo.color }}>
+                <div className="text-white">
                   {typeInfo.icon}
                 </div>
-                <DialogTitle className="flex-1" style={{ color: typeInfo.color }}>
+                <DialogTitle className="flex-1 text-white">
                   {node.label || node.id}
                 </DialogTitle>
                 <Button
                   onClick={onClose}
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 rounded-full"
-                  style={{ color: typeInfo.color }}
+                  className="h-8 w-8 rounded-full text-white hover:bg-white/10"
                 >
                   <X className="h-4 w-4" />
                 </Button>

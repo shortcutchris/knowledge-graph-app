@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { X, FileText, Calendar, UserCheck, Building, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,23 +9,36 @@ interface UseCaseModalProps {
 }
 
 export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) => {
+  const [isClosing, setIsClosing] = useState(false);
+  
+  const handleClose = () => {
+    setIsClosing(true);
+    setTimeout(() => {
+      onClose();
+    }, 300);
+  };
+  
   if (!isOpen) return null;
 
   return (
     <>
       {/* Backdrop with blur */}
       <div 
-        className="fixed inset-0 bg-black/50 backdrop-blur-md z-50 animate-in fade-in duration-300"
-        onClick={onClose}
+        className={`fixed inset-0 bg-black/50 backdrop-blur-md z-50 transition-all duration-300 ${
+          isClosing ? 'opacity-0' : 'opacity-100 animate-in fade-in'
+        }`}
+        onClick={handleClose}
       />
       
       {/* Modal */}
       <div className="fixed inset-0 flex items-center justify-center p-4 z-50 pointer-events-none">
-        <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden pointer-events-auto animate-in zoom-in-95 slide-in-from-bottom-4 duration-300 border border-gray-200">
+        <div className={`bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden pointer-events-auto transition-all duration-300 border border-gray-200 ${
+          isClosing ? 'opacity-0 scale-95' : 'opacity-100 scale-100 animate-in zoom-in-95 slide-in-from-bottom-4'
+        }`}>
           {/* Header */}
           <div className="bg-gray-900 p-6 text-white relative">
             <button
-              onClick={onClose}
+              onClick={handleClose}
               className="absolute top-4 right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
             >
               <X className="h-5 w-5" />
@@ -195,7 +208,7 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
                 Diese Demo zeigt, wie KI dabei hilft, wertvolles Expertenwissen zu bewahren.
               </p>
               <Button
-                onClick={onClose}
+                onClick={handleClose}
                 size="lg"
                 className="bg-gray-900 hover:bg-gray-800 text-white gap-2"
               >
