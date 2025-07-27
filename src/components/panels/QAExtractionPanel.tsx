@@ -26,7 +26,21 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
   onReset,
   onShowCompletionModal
 }) => {
+  const [isButtonClicked, setIsButtonClicked] = React.useState(false);
+  
+  // Reset button state when processStep changes back to upload
+  React.useEffect(() => {
+    if (processStep === 'upload') {
+      setIsButtonClicked(false);
+    }
+  }, [processStep]);
+  
   const handleStartExtraction = () => {
+    // Fade out button first
+    setIsButtonClicked(true);
+    
+    // Small delay before triggering extraction
+    setTimeout(() => {
     // Highlight the document permanently
     const mainDoc = document.getElementById('main-document');
     const mainDocIcon = mainDoc?.querySelector('svg');
@@ -47,27 +61,34 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
       }, 1800);
     }
     
-    // Trigger the extraction
-    const uploadPanel = document.querySelector('[data-upload-trigger]') as HTMLElement;
-    if (uploadPanel) {
-      uploadPanel.click();
-    }
+      // Trigger the extraction
+      const uploadPanel = document.querySelector('[data-upload-trigger]') as HTMLElement;
+      if (uploadPanel) {
+        uploadPanel.click();
+      }
+    }, 300); // Small delay for smooth transition
   };
 
   if (processStep === 'upload') {
     return (
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="relative group animate-float">
-          <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-blue-400 rounded-lg blur opacity-25 group-hover:opacity-75 transition duration-1000 group-hover:duration-200 animate-pulse"></div>
-          <Button
-            onClick={handleStartExtraction}
-            size="lg"
-            className="relative bg-blue-600 hover:bg-blue-700 text-white px-12 py-8 text-lg font-semibold shadow-lg hover:shadow-2xl hover:scale-105 transition-all transform duration-300"
-          >
-            <Play className="mr-3 h-6 w-6" />
+        <button
+          onClick={handleStartExtraction}
+          className={`flex flex-col items-center gap-4 group cursor-pointer transition-all duration-300 ${
+            isButtonClicked ? 'opacity-0 scale-90' : 'opacity-100 scale-100'
+          }`}
+        >
+          <div className="relative">
+            {/* Core element - same as animation but static */}
+            <div className="relative bg-gradient-to-br from-blue-500 to-blue-600 rounded-full p-8 shadow-2xl group-hover:shadow-3xl transition-shadow duration-300">
+              <Brain size={48} className="text-white" />
+            </div>
+          </div>
+          
+          <span className="text-lg font-semibold text-gray-700 group-hover:text-blue-600 transition-colors duration-300">
             Extraktion starten
-          </Button>
-        </div>
+          </span>
+        </button>
       </div>
     );
   }
@@ -75,7 +96,7 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
   if (processStep === 'extract') {
     return (
       <div className="flex flex-col items-center justify-center h-full">
-        <div className="relative">
+        <div className="relative animate-fadeIn">
           {/* Outer ring */}
           <div className="absolute inset-0 rounded-full border-4 border-blue-200 animate-ping"></div>
           <div className="absolute inset-0 rounded-full border-4 border-blue-300 animate-ping animation-delay-200"></div>
@@ -160,7 +181,7 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
               className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
             >
               <X className="h-4 w-4 mr-1" />
-              Abbrechen
+              Überspringen
             </Button>
             <Button
               onClick={onConfirmMapping}
