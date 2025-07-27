@@ -5,6 +5,7 @@ import type { Node, Link, ProposedElement, TooltipState } from '../../types';
 import { Tooltip } from '../common/Tooltip';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import expertWagnerImage from '../../assets/images/expert_herr_wagner.png';
 
 interface ForceGraphProps {
   nodes: Node[];
@@ -197,6 +198,19 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
 
     // Create defs for markers and filters
     const defs = svg.append("defs");
+    
+    // Create pattern for Herr Wagner image
+    defs.append("pattern")
+      .attr("id", "wagner-image")
+      .attr("x", "0")
+      .attr("y", "0")
+      .attr("width", "1")
+      .attr("height", "1")
+      .append("image")
+      .attr("href", expertWagnerImage)
+      .attr("width", "90")
+      .attr("height", "90")
+      .attr("preserveAspectRatio", "xMidYMid slice");
     
     // Create arrow markers
     defs.selectAll("marker")
@@ -393,24 +407,24 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
           .text(d.label || "A");
       } else if (d.nodeType === 'person') {
         // Special styling for Herr Wagner
+        // Outer circle (border)
         nodeGroup.append("circle")
           .attr("r", 45)
-          .attr("fill", "#e3f2fd")
+          .attr("fill", "white")
           .attr("stroke", "#1976d2")
           .attr("stroke-width", 3)
           .attr("class", "node-shape");
         
-        // Add person icon
-        nodeGroup.append("text")
-          .attr("text-anchor", "middle")
-          .attr("y", -5)
-          .attr("font-size", "24px")
-          .attr("pointer-events", "none")
-          .text("👨‍🔧");
+        // Inner circle with image
+        nodeGroup.append("circle")
+          .attr("r", 42)
+          .attr("fill", "url(#wagner-image)")
+          .attr("pointer-events", "none");
           
+        // Label below the image
         nodeGroup.append("text")
           .attr("text-anchor", "middle")
-          .attr("y", 20)
+          .attr("y", 60)
           .attr("font-size", "14px")
           .attr("font-weight", "bold")
           .attr("fill", "#1976d2")

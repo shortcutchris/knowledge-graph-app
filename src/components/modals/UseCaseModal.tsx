@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, FileText, Calendar, UserCheck, Building, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import expertWagnerImage from '../../assets/images/expert_herr_wagner.png';
 
 interface UseCaseModalProps {
   isOpen: boolean;
@@ -56,9 +57,18 @@ export const UseCaseModal: React.FC<UseCaseModalProps> = ({ isOpen, onClose }) =
           <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
             {/* Scenario */}
             <div className="mb-6 p-5 bg-gray-50 border border-gray-300 rounded-lg">
-              <div className="flex items-start gap-3">
-                <AlertCircle className="h-6 w-6 text-gray-700 mt-0.5 flex-shrink-0" />
-                <div>
+              <div className="flex items-start gap-5">
+                <div className="flex-shrink-0 relative">
+                  <img 
+                    src={expertWagnerImage} 
+                    alt="Herr Wagner" 
+                    className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg"
+                  />
+                  <div className="absolute -bottom-2 -right-2 bg-yellow-500 text-white rounded-full p-2">
+                    <AlertCircle className="h-4 w-4" />
+                  </div>
+                </div>
+                <div className="flex-1">
                   <h2 className="text-xl font-semibold text-gray-900 mb-2">
                     Kritische Situation: Herr Wagner geht in Rente
                   </h2>
