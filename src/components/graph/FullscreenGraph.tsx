@@ -111,7 +111,7 @@ export const FullscreenGraph: React.FC<FullscreenGraphProps> = ({
             proposedElements={proposedElements}
             width={isSidePanelOpen ? dimensions.width - 440 : dimensions.width - 40}
             height={dimensions.height - 104}
-            onNodeClick={useCallback((node) => {
+            onNodeClick={useCallback((node: Node | null) => {
               setSelectedNode(node);
               setIsSidePanelOpen(!!node);
             }, [])}

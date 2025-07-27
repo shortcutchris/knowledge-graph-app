@@ -328,7 +328,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
             proposedElements={proposedElements}
             width={graphDimensions.width}
             height={graphDimensions.height}
-            onNodeClick={useCallback((node) => {
+            onNodeClick={useCallback((node: Node | null) => {
               setSelectedNode(node);
               setIsPanelOpen(!!node);
             }, [])}

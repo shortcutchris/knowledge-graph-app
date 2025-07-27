@@ -62,7 +62,7 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
     if (zoomRef.current) {
       svg.transition()
         .duration(750)
-        .call(zoomRef.current.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+        .call(zoomRef.current.transform as any, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
     }
   };
   
@@ -111,7 +111,7 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
         }
       });
 
-    svg.call(zoom);
+    svg.call(zoom as any);
     zoomRef.current = zoom;
 
     // Click on background to deselect
@@ -163,20 +163,20 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
         if (d.type !== 'is_a' && d.type !== 'instance_of' && d.type !== 'is_relevant_for') return 100;
         return 120;
       }).strength(0.8))
-      .force("charge", d3.forceManyBody().strength(d => {
+      .force("charge", d3.forceManyBody().strength((d: any) => {
         if (d.nodeType === 'question' || d.nodeType === 'answer') return -150;
         if (d.id === 'herr_wagner') return -600;
         if (d.nodeType === 'document') return -500;
         return -300;
       }))
       .force("center", d3.forceCenter(width / 2, height / 2))
-      .force("collision", d3.forceCollide().radius(d => {
+      .force("collision", d3.forceCollide().radius((d: any) => {
         if (d.nodeType === 'question' || d.nodeType === 'answer') return 50;
         if (d.id === 'herr_wagner') return 90;
         if (d.nodeType === 'document') return 80;
         return 70;
       }))
-      .force("y", d3.forceY().strength(0.08).y(d => {
+      .force("y", d3.forceY().strength(0.08).y((d: any) => {
         if (d.nodeType === 'document') return height * 0.15; // Position document at top
         if (d.id === 'herr_wagner') return height * 0.3;
         if (d.id === 'anlage' || d.id === 'kunde' || d.id === 'fehler' || d.id === 'kontakt') return height * 0.5;
@@ -322,7 +322,7 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
         event.stopPropagation();
         event.preventDefault();
         if (onNodeClickRef.current) {
-          setTimeout(() => onNodeClickRef.current(d), 0);
+          setTimeout(() => onNodeClickRef.current!(d), 0);
         }
       })
       .on("mouseenter", function(event, d) {
@@ -373,7 +373,7 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
         .on("end", dragended));
 
     // Draw different shapes for different node types
-    node.each(function(d) {
+    node.each(function(d: any) {
       const nodeGroup = d3.select(this);
       
       if (d.nodeType === 'question') {
@@ -527,7 +527,7 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
           .attr("x", d.id === 'entity' ? -70 : -60)
           .attr("y", d.id === 'entity' ? -30 : -25)
           .attr("rx", 8)
-          .attr("fill", d => {
+          .attr("fill", () => {
             if (d.isProposed) return "#fff3cd";
             if (d.isNew) return "#d4edda";
             if (d.id === 'entity') return "#e8eaf6";
@@ -542,7 +542,7 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
             if (d.type === 'instance') return "#e3f2fd";
             return "#f8f9fa";
           })
-          .attr("stroke", d => {
+          .attr("stroke", () => {
             if (d.isProposed) return "#ffc107";
             if (d.isNew) return "#28a745";
             if (d.id === 'entity') return "#5c6bc0";
@@ -566,13 +566,13 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
           .attr("dominant-baseline", "middle")
           .attr("font-size", d.id === 'entity' ? "16px" : "14px")
           .attr("font-weight", "bold")
-          .attr("fill", d => {
+          .attr("fill", () => {
             if (d.isProposed) return "#856404";
             if (d.id === 'entity') return "#5c6bc0";
             return "#333";
           })
           .attr("pointer-events", "none")
-          .text(d => {
+          .text(() => {
             // Check if this is a contact instance
             const links = allLinks as any[];
             const isContactInstance = links.some(link => 
@@ -589,7 +589,7 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
           .attr("font-size", "11px")
           .attr("fill", d.isProposed ? "#856404" : "#666")
           .attr("pointer-events", "none")
-          .text(d => {
+          .text(() => {
             if (d.isProposed) return "(proposed)";
             if (d.type === 'instance') return "(instance)";
             return "";
@@ -739,12 +739,16 @@ export const ForceGraph = forwardRef<ForceGraphHandle, ForceGraphProps>(({
   // Zoom control functions
   const handleZoomIn = () => {
     const svg = d3.select(svgRef.current);
-    svg.transition().duration(300).call(zoomRef.current!.scaleBy, 1.3);
+    if (zoomRef.current) {
+      svg.transition().duration(300).call(zoomRef.current.scaleBy as any, 1.3);
+    }
   };
 
   const handleZoomOut = () => {
     const svg = d3.select(svgRef.current);
-    svg.transition().duration(300).call(zoomRef.current!.scaleBy, 0.7);
+    if (zoomRef.current) {
+      svg.transition().duration(300).call(zoomRef.current.scaleBy as any, 0.7);
+    }
   };
 
   const handleResetZoom = () => {
