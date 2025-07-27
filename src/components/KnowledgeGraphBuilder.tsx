@@ -230,7 +230,7 @@ export const KnowledgeGraphBuilder: React.FC = () => {
           </div>
         </div>
         
-        <div className="flex-1 overflow-y-auto px-5 pt-5 pb-5">
+        <div className="flex-1 px-5 pt-5 pb-5 flex flex-col overflow-hidden">
           <QAExtractionPanel
             processStep={processStep}
             extractedQAs={extractedQAs}

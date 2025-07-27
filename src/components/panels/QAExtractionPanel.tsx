@@ -1,5 +1,5 @@
 import React from 'react';
-import { AlertCircle, Brain, CheckCircle, HelpCircle, MessageSquare, Plus, Check, X, Play } from 'lucide-react';
+import { AlertCircle, Brain, CheckCircle, HelpCircle, MessageSquare, Plus, Check, X, Play, ArrowRight } from 'lucide-react';
 import type { QA } from '../../types';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -137,21 +137,45 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
     }
     
     return (
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="text-gray-600">
-              Frage {currentQAIndex + 1} von {extractedQAs.length}
-            </span>
-            <span className="text-blue-600 font-medium">
-              {Math.round(progress)}% Fertig
-            </span>
+      <div className="h-full flex flex-col overflow-hidden">
+        {/* Sticky header with progress and buttons */}
+        <div className="flex-shrink-0 bg-white border-b border-gray-200 pb-4 space-y-3">
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span className="text-gray-600">
+                Frage {currentQAIndex + 1} von {extractedQAs.length}
+              </span>
+              <span className="text-blue-600 font-medium">
+                {Math.round(progress)}% Fertig
+              </span>
+            </div>
+            <Progress value={progress} className="h-1.5" />
           </div>
-          <Progress value={progress} className="h-2" />
+          
+          <div className="flex gap-2">
+            <Button
+              onClick={onSkipMapping}
+              variant="outline"
+              size="sm"
+              className="flex-1 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 hover:border-red-300"
+            >
+              <X className="h-4 w-4 mr-1" />
+              Abbrechen
+            </Button>
+            <Button
+              onClick={onConfirmMapping}
+              size="sm"
+              className="flex-1 bg-green-600 hover:bg-green-700 text-white"
+            >
+              <ArrowRight className="h-4 w-4 mr-1" />
+              Übernehmen
+            </Button>
+          </div>
         </div>
         
+        {/* Scrollable content area */}
         {processStep === 'map' && (
-          <div className="space-y-4">
+          <div className="flex-1 overflow-y-auto pt-4 space-y-4 pr-2">
             <Card className="bg-blue-50 border-blue-200">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-lg text-blue-900">
@@ -321,25 +345,6 @@ export const QAExtractionPanel: React.FC<QAExtractionPanelProps> = ({
               </CardContent>
             </Card>
             
-            <div className="flex gap-3">
-              <Button
-                onClick={onConfirmMapping}
-                className="flex-1"
-                size="lg"
-              >
-                <Check className="mr-2 h-4 w-4" />
-                Bestätigen
-              </Button>
-              <Button
-                onClick={onSkipMapping}
-                variant="secondary"
-                className="flex-1"
-                size="lg"
-              >
-                <X className="mr-2 h-4 w-4" />
-                Überspringen
-              </Button>
-            </div>
           </div>
         )}
       </div>
