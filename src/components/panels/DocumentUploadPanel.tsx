@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Upload, CheckCircle, FileText, FolderOpen, Archive } from 'lucide-react';
+import { Upload, CheckCircle, FileText, FolderOpen, Archive, Eye } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { DocumentPreviewModal } from '../modals/DocumentPreviewModal';
 
 interface DocumentUploadPanelProps {
   uploadedDoc: { name: string; size: string } | null;
@@ -20,6 +21,7 @@ export const DocumentUploadPanel: React.FC<DocumentUploadPanelProps> = ({
   const [showMainDocument, setShowMainDocument] = useState(true);
   const [isArchiving, setIsArchiving] = useState(false);
   const [archivedCount, setArchivedCount] = useState(0);
+  const [showDocumentPreview, setShowDocumentPreview] = useState(false);
   
   useEffect(() => {
     if (processStep === 'complete' && showMainDocument) {
@@ -90,7 +92,8 @@ export const DocumentUploadPanel: React.FC<DocumentUploadPanelProps> = ({
               id="main-document"
               className={`flex items-center gap-3 p-3 rounded-lg border transition-all bg-gray-50 border-gray-200 ${
                 isArchiving ? 'animate-archive' : ''
-              }`}
+              } ${processStep !== 'complete' ? 'hover:bg-gray-100 cursor-pointer group' : ''}`}
+              onClick={() => processStep !== 'complete' && setShowDocumentPreview(true)}
             >
               <FileText className="h-5 w-5 text-gray-600" />
               <div className="flex-1">
@@ -99,6 +102,20 @@ export const DocumentUploadPanel: React.FC<DocumentUploadPanelProps> = ({
                   45.3 MB • 847 Seiten • Hauptdokument
                 </p>
               </div>
+              {processStep !== 'complete' && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setShowDocumentPreview(true);
+                  }}
+                  title="Dokument ansehen"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+              )}
             </div>
           )}
           <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 opacity-60">
@@ -140,7 +157,12 @@ export const DocumentUploadPanel: React.FC<DocumentUploadPanelProps> = ({
           <p className="text-xs text-gray-500 mt-1">Drag & Drop oder klicken</p>
         </div>
       </div>
-
+      
+      {/* Document Preview Modal */}
+      <DocumentPreviewModal 
+        isOpen={showDocumentPreview}
+        onClose={() => setShowDocumentPreview(false)}
+      />
     </div>
   );
 };
