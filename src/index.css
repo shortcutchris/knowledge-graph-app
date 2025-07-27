@@ -135,3 +135,25 @@
 .animate-fadeIn {
   animation: fadeIn 0.5s ease-out;
 }
+
+@keyframes archive {
+  0% {
+    transform: translate(0, 0) scale(1) rotate(0deg);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(calc(var(--archive-x) * 0.5), calc(var(--archive-y) * 0.5)) scale(0.6) rotate(10deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate(var(--archive-x), var(--archive-y)) scale(0.1) rotate(20deg);
+    opacity: 0;
+  }
+}
+
+.animate-archive {
+  animation: archive 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  transform-origin: center;
+  position: relative;
+  z-index: 50;
+}

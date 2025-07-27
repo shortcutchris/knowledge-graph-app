@@ -1,7 +1,8 @@
-import React from 'react';
-import { Upload, CheckCircle, FileText, FolderOpen } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Upload, CheckCircle, FileText, FolderOpen, Archive } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface DocumentUploadPanelProps {
   uploadedDoc: { name: string; size: string } | null;
@@ -16,6 +17,46 @@ export const DocumentUploadPanel: React.FC<DocumentUploadPanelProps> = ({
   processStep,
   onReset
 }) => {
+  const [showMainDocument, setShowMainDocument] = useState(true);
+  const [isArchiving, setIsArchiving] = useState(false);
+  const [archivedCount, setArchivedCount] = useState(0);
+  
+  useEffect(() => {
+    if (processStep === 'complete' && showMainDocument) {
+      // Start archive animation when complete
+      setTimeout(() => {
+        const mainDoc = document.getElementById('main-document');
+        const archiveIcon = document.getElementById('archive-icon');
+        
+        if (mainDoc && archiveIcon) {
+          const docRect = mainDoc.getBoundingClientRect();
+          const iconRect = archiveIcon.getBoundingClientRect();
+          
+          const deltaX = iconRect.left - docRect.left;
+          const deltaY = iconRect.top - docRect.top;
+          
+          // Set CSS variables for animation
+          mainDoc.style.setProperty('--archive-x', `${deltaX}px`);
+          mainDoc.style.setProperty('--archive-y', `${deltaY}px`);
+        }
+        
+        setIsArchiving(true);
+        // After animation, hide document and increment counter
+        setTimeout(() => {
+          setShowMainDocument(false);
+          setArchivedCount(1);
+          setIsArchiving(false);
+        }, 800);
+      }, 500);
+    }
+    
+    // Reset when demo restarts
+    if (processStep === 'upload' && !showMainDocument) {
+      setShowMainDocument(true);
+      setArchivedCount(0);
+    }
+  }, [processStep, showMainDocument]);
+  
   return (
     <div className="h-full flex flex-col">
       {/* Hidden trigger for extraction button */}
@@ -27,25 +68,39 @@ export const DocumentUploadPanel: React.FC<DocumentUploadPanelProps> = ({
       />
       {/* Always show document list */}
       <div className="mb-6">
-        <div className="flex items-center gap-2 mb-3">
-          <FolderOpen className="h-5 w-5 text-gray-600" />
-          <h3 className="text-sm font-semibold text-gray-700">
-            Verfügbare Dokumente
-          </h3>
-        </div>
-        <div className="space-y-2">
-          <div 
-            id="main-document"
-            className="flex items-center gap-3 p-3 rounded-lg border transition-all bg-gray-50 border-gray-200"
-          >
-            <FileText className="h-5 w-5 text-gray-600" />
-            <div className="flex-1">
-              <p className="text-sm font-medium">Wagner_Wartungsberichte_2019-2024.pdf</p>
-              <p className="text-xs text-gray-600">
-                45.3 MB • 847 Seiten • Hauptdokument
-              </p>
-            </div>
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <FolderOpen className="h-5 w-5 text-gray-600" />
+            <h3 className="text-sm font-semibold text-gray-700">
+              Verfügbare Dokumente
+            </h3>
           </div>
+          
+          {/* Archive indicator */}
+          <div className={`flex items-center gap-2 transition-all duration-500 ${archivedCount > 0 ? 'opacity-100' : 'opacity-0'}`}>
+            <Archive className="h-5 w-5 text-green-600" id="archive-icon" />
+            <Badge className="bg-green-100 text-green-700 text-xs">
+              {archivedCount} archiviert
+            </Badge>
+          </div>
+        </div>
+        <div className="space-y-2 relative">
+          {showMainDocument && (
+            <div 
+              id="main-document"
+              className={`flex items-center gap-3 p-3 rounded-lg border transition-all bg-gray-50 border-gray-200 ${
+                isArchiving ? 'animate-archive' : ''
+              }`}
+            >
+              <FileText className="h-5 w-5 text-gray-600" />
+              <div className="flex-1">
+                <p className="text-sm font-medium">Wagner_Wartungsberichte_2019-2024.pdf</p>
+                <p className="text-xs text-gray-600">
+                  45.3 MB • 847 Seiten • Hauptdokument
+                </p>
+              </div>
+            </div>
+          )}
           <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-200 opacity-60">
             <FileText className="h-5 w-5 text-gray-400" />
             <div className="flex-1">
